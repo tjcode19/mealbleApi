@@ -39,7 +39,7 @@ class UserController {
 
       const newUser = await this.userService.createUser(userData);
       res.status(201).json({
-        code: CR.success,
+        code: CR.accepted,
         message: "Request Successful",
         data: newUser,
       });
@@ -63,7 +63,7 @@ class UserController {
 
       const users = await this.userService.getAllUsers(limit, offset);
       if (users) {
-        res.status(201).json({
+        res.status(200).json({
           code: CR.success,
           message: "Request Successful",
           data: users,
@@ -86,14 +86,26 @@ class UserController {
   async getUserById(req, res) {
     try {
       const userId = req.params.id;
+
       const user = await this.userService.getUserById(userId);
       if (user) {
-        res.json(user);
+        res.status(200).json({
+          code: CR.success,
+          message: "Request Successful",
+          data: user,
+        });
       } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ code: CR.notFound, message: "User not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      if (String(error).includes("MongoNotConnectedError")) {
+        return res
+          .status(500)
+          .json({ code: CR.serverError, message: "Database connection error" });
+      }
+      res
+        .status(500)
+        .json({ code: CR.serverError, message: "Internal server error" });
     }
   }
 
@@ -103,12 +115,23 @@ class UserController {
       const userData = req.body;
       const updatedUser = await this.userService.updateUser(userId, userData);
       if (updatedUser) {
-        res.json(updatedUser);
+        res.status(200).json({
+          code: CR.success,
+          message: "Request Successful",
+          data: updatedUser,
+        });
       } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ code: CR.notFound, message: "User not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      if (String(error).includes("MongoNotConnectedError")) {
+        return res
+          .status(500)
+          .json({ code: CR.serverError, message: "Database connection error" });
+      }
+      res
+        .status(500)
+        .json({ code: CR.serverError, message: "Internal server error" });
     }
   }
 
@@ -116,13 +139,29 @@ class UserController {
     try {
       const userId = req.params.id;
       const deletedUser = await this.userService.deleteUser(userId);
+
+      console.log(deletedUser);
+
       if (deletedUser) {
-        res.status(204).end();
+        res
+          .status(200)
+          .json({
+            code: CR.success,
+            message: "Request Successful",
+          })
+          .end();
       } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ code: CR.notFound, message: "User not found" });
       }
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      if (String(error).includes("MongoNotConnectedError")) {
+        return res
+          .status(500)
+          .json({ code: CR.serverError, message: "Database connection error" });
+      }
+      res
+        .status(500)
+        .json({ code: CR.serverError, message: "Internal server error" });
     }
   }
 }

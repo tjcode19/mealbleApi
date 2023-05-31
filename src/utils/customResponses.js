@@ -4,4 +4,5 @@ module.exports = {
   serverError: "005",
   notFound: "044",
   success: "000",
+  accepted: "001",
 };

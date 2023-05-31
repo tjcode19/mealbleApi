@@ -6,7 +6,9 @@ const userController = new UserController();
 
 /* GET users listing. */
 router.route("/").post(userController.createUser.bind(userController));
-router.route("/:id").get(mealController.getById.bind(userController));
+router.route("/:id").get(userController.getUserById.bind(userController));
+router.route("/:id").patch(userController.updateUser.bind(userController));
+router.route("/:id").delete(userController.deleteUser.bind(userController));
 router.route("/").get(userController.getAllUsers.bind(userController));
 
 module.exports = router;

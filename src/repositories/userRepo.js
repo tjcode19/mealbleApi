@@ -10,7 +10,7 @@ class UserRepository {
   }
 
   async getAllUsers(limit, offset) {
-    return await User.find().skip(offset).limit(limit).lean().populate("auth");
+    return await User.find().sort({ _id: -1 }).skip(offset).limit(limit).lean().populate("auth");
   }
 
   async getUserById(userId) {
