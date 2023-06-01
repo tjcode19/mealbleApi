@@ -2,6 +2,8 @@
 
 const AuthService = require("../services/authService");
 const CR = require("../utils/customResponses");
+const CU = require("../utils/utils");
+const bcrypt = require("bcrypt");
 
 class AuthController {
   constructor() {
@@ -26,13 +28,30 @@ class AuthController {
         });
       }
 
-      const login = await this.authService.login(email, password);
+      const login = await this.authService.login(email);
 
       if (login) {
-        res.status(200).json({
-          code: CR.success,
-          message: "Login Successful",
-        });
+        const passwordMatch = await bcrypt.compare(password, login.password);
+
+        if (passwordMatch) {
+          const t = CU.generateAccessToken({
+            userId: login._id,
+            type: login.role,
+          });
+          res.status(200).json({
+            code: CR.success,
+            message: "Login Successful",
+            data: {
+              token: t,
+              userId: login._id,
+            },
+          });
+        } else {
+          return res.status(400).json({
+            code: CR.badRequest,
+            message: "Invalid Password",
+          });
+        }
       } else {
         res.status(404).json({
           code: CR.notFound,
@@ -45,6 +64,8 @@ class AuthController {
           .status(500)
           .json({ code: CR.serverError, message: "Database connection error" });
       }
+
+      console.log(error);
       res
         .status(500)
         .json({ code: CR.serverError, message: "Internal server error" });

@@ -9,9 +9,9 @@ class AuthRepository {
     }
   }
 
-  async login(email, password) {
+  async login(email) {
     try {
-      return await Auth.findOne({ username: email, password: password });
+      return await Auth.findOne({ username: email });
     } catch (error) {
       return error;
     }

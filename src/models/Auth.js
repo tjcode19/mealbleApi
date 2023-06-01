@@ -13,7 +13,6 @@ const AuthSchema = mongoose.Schema(
       type: String,
       require: true,
     },
-    token: String,
     role: {
       type: String,
       default: "User",

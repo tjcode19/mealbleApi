@@ -5,6 +5,7 @@ const { isAdmin, authenticate } = require("../middleware/auth");
 const userController = new UserController();
 
 /* GET users listing. */
+router.route("/verify").post(userController.verifyEmail.bind(userController));
 router.route("/").post(userController.createUser.bind(userController));
 router
   .route("/:id")
@@ -15,6 +16,6 @@ router
 router
   .route("/:id")
   .delete(isAdmin, userController.deleteUser.bind(userController));
-router.route("/").get(isAdmin, userController.getAllUsers.bind(userController));
+router.route("/").get( userController.getAllUsers.bind(userController));
 
 module.exports = router;

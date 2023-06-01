@@ -19,6 +19,9 @@ const UserSchema = mongoose.Schema(
     dob: {
       type: String,
     },
+    otp: {
+      type: String,
+    },
     country: {
       type: String,
     },

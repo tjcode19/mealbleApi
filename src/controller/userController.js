@@ -1,11 +1,15 @@
 // src/controllers/userController.js
 
 const UserService = require("../services/userService");
+const AuthService = require("../services/authService");
 const CR = require("../utils/customResponses");
+const CU = require("../utils/utils");
+const bcrypt = require("bcrypt");
 
 class UserController {
   constructor() {
     this.userService = new UserService();
+    this.authService = new AuthService();
   }
 
   async createUser(req, res) {
@@ -30,6 +34,8 @@ class UserController {
       }
 
       // Check if the user already exists
+      const otp = CU.generateOTP(6);
+      userData.otp = otp;
       const userExists = await this.userService.checkUserExists(userData.email);
       if (userExists) {
         return res
@@ -38,17 +44,98 @@ class UserController {
       }
 
       const newUser = await this.userService.createUser(userData);
-      res.status(201).json({
-        code: CR.accepted,
-        message: "Request Successful",
-        data: newUser,
-      });
+      if (newUser) {
+        //Send an email to be implemented
+        res.status(201).json({
+          code: CR.accepted,
+          message: "Request Successful",
+          data: newUser,
+        });
+      } else {
+        res.status(500).json({
+          code: CR.serverError,
+          message: "Request Failed",
+          data: newUser,
+        });
+      }
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {
         return res
           .status(500)
           .json({ code: CR.serverError, message: "Database connection error" });
       }
+      res
+        .status(500)
+        .json({ code: CR.serverError, message: "Internal server error" });
+    }
+  }
+
+  async verifyEmail(req, res) {
+    try {
+      const { otp, password, userId } = req.body;
+
+      // Input validation in the controller
+      if (!otp) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "OTP is required",
+        });
+      }
+      if (!password) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Password is required",
+        });
+      }
+      if (!userId) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "User ID is required as parameter",
+        });
+      }
+
+      const otpExist = await this.userService.checkOtpExist(otp, userId);
+      if (otpExist) {
+        const saltR = 10;
+        const hashPass = await bcrypt.hash(password, saltR);
+        let data = {
+          username: otpExist.email,
+          password: hashPass,
+          salt: saltR,
+          _id: userId,
+        };
+        const newAuth = await this.authService.createAuth(data);
+
+        console.log(newAuth);
+
+        if (newAuth) {
+          this.userService.updateUser(userId, { otp: "" });
+          res.status(201).json({
+            code: CR.accepted,
+            message: "Request Successful",
+            data: {
+              token: "",
+            },
+          });
+        } else {
+          res.status(500).json({
+            code: CR.serverError,
+            message: "Request Failed",
+          });
+        }
+      } else {
+        return res.status(404).json({
+          code: CR.notFound,
+          message: "Invalid OTP",
+        });
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return res
+          .status(500)
+          .json({ code: CR.serverError, message: "Database connection error" });
+      }
+      console.log(error);
       res
         .status(500)
         .json({ code: CR.serverError, message: "Internal server error" });

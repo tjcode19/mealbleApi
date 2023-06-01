@@ -30,6 +30,10 @@ class UserService {
   async checkUserExists(email) {
     return await this.userRepository.getUserByQuery({ email: email });
   }
+
+  async checkOtpExist(otp, userId) {
+    return await this.userRepository.getUserByQuery({ otp: otp, _id: userId });
+  }
 }
 
 module.exports = UserService;
