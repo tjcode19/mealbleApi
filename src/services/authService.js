@@ -15,7 +15,7 @@ class UserService {
     return await this.authRepository.login(email);
   }
 
-  async updateUser(userId, userData) {
+  async updateAuth(userId, userData) {
     return await this.authRepository.updateAuth(userId, userData);
   }
 
