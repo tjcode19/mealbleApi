@@ -1,31 +1,235 @@
-// src/services/userService.js
+const MealRepository = require("../repositories/mealRepo");
+const CR = require("../utils/customResponses");
 
-const MealRepository = require('../repositories/userRepo');
-
-class UserService {
+class MealService {
   constructor() {
-    this.userRepository = new UserRepository();
+    this.repo = new MealRepository();
   }
 
-  async createUser(userData) {
-    return await this.userRepository.createUser(userData);
+  async createData(data) {
+    try {
+      const cal = await this.repo.createData(data);
+      if (cal) {
+        return {
+          status: 201,
+          res: {
+            code: CR.success,
+            message: "Meal Added Successfully",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
   }
 
-  async getAllUsers() {
-    return await this.userRepository.getAllUsers();
+  async getAll() {
+    try {
+      const cal = await this.repo.getAll();
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
   }
 
-  async getUserById(userId) {
-    return await this.userRepository.getUserById(userId);
+  async getById(id) {
+    try {
+      const cal = await this.repo.getById(id);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
   }
 
-  async updateUser(userId, userData) {
-    return await this.userRepository.updateUser(userId, userData);
+  async mealExist(name) {
+    try {
+      const cal = await this.repo.getByQuery({ name: name });
+
+      console.log(cal, "here");
+      if (cal) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
   }
 
-  async deleteUser(userId) {
-    return await this.userRepository.deleteUser(userId);
+  async updateData(id, data) {
+    try {
+      const cal = await this.repo.updateData(id, data);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Update Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
+  }
+
+  async deleteData(id) {
+    try {
+      const cal = await this.repo.deleteData(id);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Delete Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
   }
 }
 
-module.exports = UserService;
+module.exports = MealService;

@@ -1,6 +1,7 @@
 // const currencyService = require("../services/currency");
 
 const AuthService = require("../services/authService");
+const UserService = require("../services/userService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 const bcrypt = require("bcrypt");
@@ -29,47 +30,15 @@ class AuthController {
         });
       }
 
-      const login = await this.authService.login(email);
+      const login = await this.authService.login(email, password);
 
-      if (login) {
-        const passwordMatch = await bcrypt.compare(password, login.password);
-
-        if (passwordMatch) {
-          const t = CU.generateAccessToken({
-            userId: login._id,
-            type: login.role,
-          });
-          res.status(200).json({
-            code: CR.success,
-            message: "Login Successful",
-            data: {
-              token: t,
-              userId: login._id,
-            },
-          });
-        } else {
-          return res.status(400).json({
-            code: CR.badRequest,
-            message: "Invalid Password",
-          });
-        }
-      } else {
-        res.status(404).json({
-          code: CR.notFound,
-          message: "Login Failed",
-        });
-      }
+      res.status(login.status).json(login.res);
     } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
-
-      console.log(error);
-      res
-        .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+      res.status(500).json({
+        code: CR.serverError,
+        message: "Internal server error",
+        dev: "In authController",
+      });
     }
   }
 
@@ -84,55 +53,22 @@ class AuthController {
         });
       }
 
-      const otp = CU.generateOTP(6);
-      const userExist = await this.userService.checkUserExists(email);
+      const otp = await this.userService.sendOtp(email);
 
-      if (userExist) {
-        const updateUser = await this.userService.updateUser(userExist._id, {
-          otp: otp,
-        });
-
-        //Send otp to email
-        //To be implemented
-
-        if (updateUser) {
-          res.status(200).json({
-            code: CR.success,
-            message: "OTP Sent Successfully",
-            data: {
-              otp: otp,
-              userId: userExist._id,
-            },
-          });
-        } else {
-          return res.status(500).json({
-            code: CR.serverError,
-            message: "Failed Action",
-          });
-        }
-      } else {
-        res.status(404).json({
-          code: CR.notFound,
-          message: "User Not Found",
-        });
-      }
+      res.status(otp.status).json(otp.res);
     } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
-
-      console.log(error);
-      res
-        .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+      res.status(500).json({
+        code: CR.serverError,
+        message: "Internal server error:" + error,
+        dev: "In SendOtp authController",
+      });
     }
   }
 
   async setPassword(req, res) {
     try {
-      const { otp, password, userId } = req.body;
+      const { otp, password } = req.body;
+      const userId = req.params.id;
 
       if (password == null || password === "") {
         return res.status(400).json({
@@ -154,41 +90,10 @@ class AuthController {
         });
       }
 
-      const otpExist = await this.userService.checkOtpExist(otp, userId);
-      if (!otpExist) {
-        return res.status(404).json({
-          code: CR.notFound,
-          message: "Invalid OTP",
-        });
-      }
+      const newAuth = await this.authService.setPassword(otp, userId, password);
 
-      const saltR = 10;
-      const hashPass = await bcrypt.hash(password, saltR);
-      let data = {
-        password: hashPass,
-        salt: saltR,
-      };
-      const newAuth = await this.authService.updateAuth(userId, data);
-
-      if (newAuth) {
-        res.status(200).json({
-          code: CR.success,
-          message: "Password Set Successfully",
-        });
-      } else {
-        res.status(500).json({
-          code: CR.serverError,
-          message: "Operation Failed",
-        });
-      }
+      res.status(newAuth.status).json(newAuth.res);
     } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
-
-      console.log(error);
       res
         .status(500)
         .json({ code: CR.serverError, message: "Internal server error" });

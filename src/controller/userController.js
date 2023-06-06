@@ -105,9 +105,6 @@ class UserController {
           _id: userId,
         };
         const newAuth = await this.authService.createAuth(data);
-
-        console.log(newAuth);
-
         if (newAuth) {
           this.userService.updateUser(userId, { otp: "" });
           res.status(201).json({

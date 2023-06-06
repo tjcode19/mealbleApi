@@ -1,27 +1,34 @@
-const User = require("../models/Users");
+const Meal = require("../models/Meal");
 
-
-class UserRepository {
-  async createUser(userData) {
-    return await User.create(userData);
+class MealRepository {
+  async createData(data) {
+    return await Meal.create(data);
   }
 
-  async getAllUsers() {
-    return await User.find().lean().populate("auth");
+  async getAll() {
+    return await Meal.find().lean().sort({ _id: -1 });
   }
 
-  async getUserById(userId) {
-    return await User.findById(userId);
+  async getById(id) {
+    return await Meal.findById(id);
   }
 
-  async updateUser(userId, userData) {
-    return await User.findByIdAndUpdate(userId, userData, { new: true });
+  async getByQuery(q) {
+    console.log(q);
+    try {
+      return await Meal.findOne(q);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  async deleteUser(userId) {
-    return await User.findByIdAndDelete(userId);
+  async updateData(id, data) {
+    return await Meal.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async deleteData(id) {
+    return await Meal.findByIdAndDelete(id);
   }
 }
 
-module.exports = UserRepository;
-
+module.exports = MealRepository;

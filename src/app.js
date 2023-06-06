@@ -15,6 +15,10 @@ app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 
+app.use("/", (req, res) => {
+    res.send("Welcome to the Mealble");
+  });
+
 //Connect to DB
 mongoose.connect(process.env.DB_CONNECTION, {
   useNewUrlParser: true,

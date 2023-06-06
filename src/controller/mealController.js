@@ -1,68 +1,86 @@
-// const currencyService = require("../services/currency");
+const MealService = require("../services/mealService");
+const CR = require("../utils/customResponses");
 
-module.exports = mealController = {
-  getAll: async (req, res, next) => {
+class MealController {
+  constructor() {
+    this.oServices = new MealService();
+  }
+
+  async getAll(req, res) {
     try {
-      //   const curs = await currencyService.getAll();
-      res.status(200).json({
-        responseCode: "000",
-        responseMessage: "Query Successful",
-        // data: curs,
-      });
+      const curs = await this.oServices.getAll();
+      res.status(curs.status).json(curs.res);
     } catch (error) {
-      next(error);
-      res.json({ responseCode: "0036", msg: error.message });
-    }
-  },
-  getById: async (req, res, next) => {
-    try {
-      //   const cur = await currencyService.getById(req.params.id);
+      console.log(error);
       res.json({
-        responseCode: "000",
-        responseMessage: "Query Successful",
-        data: cur,
+        code: CR.serverError,
+        message: error,
+        dev: "getAll Controller",
       });
-    } catch (error) {
-      next(error);
-      res.json({ responseCode: "0036", msg: error.message });
     }
-  },
-  create: async (req, res, next) => {
-    const { name, description } = req.body;
+  }
+
+  async getById(req, res) {
+    try {
+      const cur = await this.oServices.getById(req.params.id);
+      res.status(cur.status).json(cur.res);
+    } catch (error) {
+      res.json({ code: CR.serverError, message: error });
+    }
+  }
+
+  async create(req, res) {
+    const data = req.body;
 
     try {
-      if (name == null || name === "") {
+      if (data.name == null || data.name === "") {
         return res.status(400).json({
-          responseCode: "004",
-          responseMessage: "Name field is required",
+          code: CR.badRequest,
+          message: "Name field is required",
         });
       }
 
-      res.status(201).json({
-        responseCode: "000",
-        responseMessage: "Currency Added Successful",
-        // data: action[0],
-      });
-    } catch (error) {
-      next(error);
-      return { err: error };
-    }
-  },
+      if (data.category == null || data.category.length === 0) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Select one or more category",
+        });
+      }
+      const name = data.name.toLowerCase();
+      const str = name.charAt(0).toUpperCase() + name.slice(1);
 
-  update: async (req, res, next) => {
-    try {
-      //   const user = await currencyService.update(req.params.id, req.body);
-      res.json(user);
+      const existM = await this.oServices.mealExist(str);
+      if (existM) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Meal Already Exist",
+        });
+      }
+
+      data.name = str;
+      const cal = await this.oServices.createData(data);
+      res.status(cal.status).json(cal.res);
     } catch (error) {
-      next(error);
+      res.status(500).json({ code: CR.serverError, message: error.message });
     }
-  },
-  delete: async (req, res, next) => {
+  }
+
+  async update(req, res) {
     try {
-      //   const user = await currencyService.delete(req.params.id);
-      res.json(user);
+      const cal = await this.oServices.updateData(req.params.id, req.body);
+      res.status(cal.status).json(cal.res);
     } catch (error) {
-      next(error);
+      res.status(500).json({ code: CR.serverError, message: error.message });
     }
-  },
-};
+  }
+  async delete(req, res) {
+    try {
+      const cal = await this.oServices.deleteData(req.params.id);
+      res.status(cal.status).json(cal.res);
+    } catch (error) {
+      res.status(500).json({ code: CR.serverError, message: error.message });
+    }
+  }
+}
+
+module.exports = MealController;

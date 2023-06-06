@@ -7,8 +7,8 @@ const { isAdmin, authenticate } = require("../middleware/auth");
 /* GET users listing. */
 router.route("/send-otp").post(authController.sendOtp.bind(authController));
 router
-  .route("/set-password")
-  .post(authController.setPassword.bind(authController));
+  .route("/set-password/:id")
+  .patch(authController.setPassword.bind(authController));
 router
   .route("/change-password")
   .post(authenticate, authController.changePassword.bind(authController));
