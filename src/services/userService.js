@@ -58,7 +58,7 @@ class UserService {
             status: 201,
             res: {
               code: CR.accepted,
-              message: "Request Successful",
+              message: "Email Verification Successful",
               data: {
                 token: t,
               },

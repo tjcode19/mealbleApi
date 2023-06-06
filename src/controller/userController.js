@@ -96,45 +96,10 @@ class UserController {
         });
       }
 
-      const otpExist = await this.userService.checkOtpExist(otp, userId);
-      if (otpExist) {
-        const saltR = 10;
-        const hashPass = await bcrypt.hash(password, saltR);
-        let data = {
-          username: otpExist.email,
-          password: hashPass,
-          salt: saltR,
-          _id: userId,
-        };
-        const newAuth = await this.authService.createAuth(data);
-        if (newAuth) {
-          this.userService.updateUser(userId, { otp: "" });
-          res.status(201).json({
-            code: CR.accepted,
-            message: "Request Successful",
-            data: {
-              token: "",
-            },
-          });
-        } else {
-          res.status(500).json({
-            code: CR.serverError,
-            message: "Request Failed",
-          });
-        }
-      } else {
-        return res.status(404).json({
-          code: CR.notFound,
-          message: "Invalid OTP",
-        });
-      }
+      const cal = await this.userService.verifyEmail(otp, password, userId);
+
+      res.status(cal.status).json(cal.res);
     } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
-      console.log(error);
       res
         .status(500)
         .json({ code: CR.serverError, message: "Internal server error" });
