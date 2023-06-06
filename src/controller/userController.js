@@ -4,7 +4,7 @@ const UserService = require("../services/userService");
 const AuthService = require("../services/authService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
-const bcrypt = require("bcrypt");
+
 
 class UserController {
   constructor() {

@@ -2,6 +2,7 @@ const UserRepository = require("../repositories/userRepo");
 const AuthRepository = require("../repositories/authRepo");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
+const bcrypt = require("bcrypt");
 
 class UserService {
   constructor() {
