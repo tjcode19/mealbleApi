@@ -1,10 +1,12 @@
 const UserRepository = require("../repositories/userRepo");
+const AuthRepository = require("../repositories/authRepo");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 
 class UserService {
   constructor() {
     this.userRepository = new UserRepository();
+    this.authRepository = new AuthRepository();
   }
 
   async createUser(userData) {
@@ -37,7 +39,7 @@ class UserService {
 
   async verifyEmail(otp, password, userId) {
     try {
-      const otpExist = await this.userService.checkOtpExist(otp, userId);
+      const otpExist = await this.checkOtpExist(otp, userId);
       if (otpExist) {
         const saltR = 10;
         const hashPass = await bcrypt.hash(password, saltR);
@@ -47,9 +49,9 @@ class UserService {
           salt: saltR,
           _id: userId,
         };
-        const newAuth = await this.authService.createAuth(data);
+        const newAuth = await this.authRepository.createAuth(data);
         if (newAuth) {
-          this.userService.updateUser(userId, { otp: "" });
+          this.updateUser(userId, { otp: "" });
           const t = CU.generateAccessToken({
             userId: userId,
             type: "User",
@@ -95,7 +97,7 @@ class UserService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In Login AuthService",
+          dev: "In Verify Email UserService",
         },
       };
     }
