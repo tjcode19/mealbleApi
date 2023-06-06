@@ -16,6 +16,8 @@ class UserController {
     try {
       const userData = req.body;
 
+      console.log(userData);
+
       // Input validation in the controller
       if (!userData.email) {
         return res.status(400).json({
@@ -140,8 +142,7 @@ class UserController {
   }
 
   async getAllUsers(req, res) {
-
-    console.log("I'm here outlineOffset: ")
+    console.log("I'm here outlineOffset: ");
     try {
       const page = req.query.page || 1; // Current page number
       const limit = req.query.limit || 10; // Number of items per page
