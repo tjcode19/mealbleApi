@@ -16,7 +16,7 @@ class UserController {
     try {
       const userData = req.body;
 
-      console.log(userData);
+      console.log(req);
 
       // Input validation in the controller
       if (!userData.email) {
