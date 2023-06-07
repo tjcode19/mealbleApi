@@ -21,7 +21,7 @@ class AuthRepository {
     return await Auth.findById(userId);
   }
 
-  async resetPassword(query) {
+  async getAuth(query) {
     return await Auth.findOne(query);
   }
 

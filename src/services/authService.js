@@ -215,13 +215,17 @@ class AuthService {
 
   async changePassword(otp, userId, password) {
     try {
-      const otpExist = await this.userService.checkOtpExist(otp, userId);
-      if (!otpExist) {
+      
+      const userExist = await this.authRepository.getAuth({_id:userId});
+
+
+      const passwordMatch = await bcrypt.compare(password, userExist.password);
+      if (!passwordMatch) {
         return {
-          status: 404,
+          status: 400,
           res: {
-            code: CR.notFound,
-            message: "Invalid OTP",
+            code: CR.badRequest,
+            message: "Old Password Not Correct",
           },
         };
       }
@@ -238,7 +242,7 @@ class AuthService {
           status: 200,
           res: {
             code: CR.success,
-            message: "Password Set Successfully",
+            message: "Password Changed Successfully",
           },
         };
       } else {

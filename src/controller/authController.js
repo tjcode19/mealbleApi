@@ -53,7 +53,7 @@ class AuthController {
         });
       }
 
-      const otp = await this.userService.sendOtp(email);
+      const otp = await this.authService.sendOtp(email);
 
       res.status(otp.status).json(otp.res);
     } catch (error) {
@@ -120,24 +120,14 @@ class AuthController {
         });
       }
 
-      const saltR = 10;
-      const hashPass = await bcrypt.hash(newPassword, saltR);
-
-      const newAuth = await this.authService.updateAuth(userId, {
-        password: hashPass,
-      });
-
-      if (newAuth) {
+     
+      const newAuth = await this.authService.changePassword()
+    
         res.status(200).json({
           code: CR.success,
           message: "Password Changed Successfully",
         });
-      } else {
-        res.status(500).json({
-          code: CR.serverError,
-          message: "Operation Failed",
-        });
-      }
+     
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {
         return res
