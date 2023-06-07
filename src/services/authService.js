@@ -213,13 +213,13 @@ class AuthService {
     }
   }
 
-  async changePassword(otp, userId, password) {
+  async changePassword(userId, oldPass, newPass) {
     try {
       
       const userExist = await this.authRepository.getAuth({_id:userId});
 
 
-      const passwordMatch = await bcrypt.compare(password, userExist.password);
+      const passwordMatch = await bcrypt.compare(oldPass, userExist.password);
       if (!passwordMatch) {
         return {
           status: 400,
@@ -231,7 +231,7 @@ class AuthService {
       }
 
       const saltR = 10;
-      const hashPass = await bcrypt.hash(password, saltR);
+      const hashPass = await bcrypt.hash(newPass, saltR);
 
       const newAuth = await this.updateAuth(userId, {
         password: hashPass,

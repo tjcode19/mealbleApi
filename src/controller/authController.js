@@ -120,25 +120,21 @@ class AuthController {
         });
       }
 
-     
-      const newAuth = await this.authService.changePassword()
-    
-        res.status(200).json({
-          code: CR.success,
-          message: "Password Changed Successfully",
-        });
-     
-    } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
+      const newAuth = await this.authService.changePassword(
+        userId,
+        currentPassword,
+        newPassword
+      );
 
-      console.log(error);
+      res.status(newAuth.status).json(newAuth.res);
+    } catch (error) {
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+        .json({
+          code: CR.serverError,
+          message: "Internal server error",
+          dev: "AuthController => Change Password",
+        });
     }
   }
 }
