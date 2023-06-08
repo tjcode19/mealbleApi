@@ -10,6 +10,7 @@ router.route("/").post(controller.create.bind(controller));
 router.route("/:id").patch(controller.update.bind(controller));
 router.route("/:id").delete(controller.delete.bind(controller));
 router.route("/:id").get(controller.getById.bind(controller));
+router.route("/filter/:tag").get(controller.getByTag.bind(controller));
 router.route("/").get(controller.getAll.bind(controller));
 
 module.exports = router;

@@ -8,7 +8,19 @@ const MealSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
     category: {
+      type: Array,
+      required: true,
+    },
+    extra: {
+      type: Array,
+      required: true,
+    },
+    nutrients: {
       type: Array,
       required: true,
     },

@@ -8,7 +8,12 @@ class MealController {
 
   async getAll(req, res) {
     try {
-      const curs = await this.oServices.getAll();
+      const page = req.query.page || 1;
+      const type = req.query.type; // Current page number
+      const limit = req.query.limit || 10; // Number of items per page
+      const offset = (page - 1) * limit; // Offset to skip the required number of items
+
+      const curs = await this.oServices.getAll(limit, offset, type);
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
@@ -16,6 +21,27 @@ class MealController {
         code: CR.serverError,
         message: error,
         dev: "getAll Controller",
+      });
+    }
+  }
+
+  async getByTag(req, res) {
+
+    console.log("tagbyds")
+    try {
+      const page = req.query.page || 1;
+      const type = req.params.tag; // Current page number
+      const limit = req.query.limit || 10; // Number of items per page
+      const offset = (page - 1) * limit; // Offset to skip the required number of items
+
+      const curs = await this.oServices.getByTag(limit, offset, type);
+      res.status(curs.status).json(curs.res);
+    } catch (error) {
+      console.log(error);
+      res.json({
+        code: CR.serverError,
+        message: error,
+        dev: "getByTag Controller",
       });
     }
   }

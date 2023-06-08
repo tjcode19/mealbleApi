@@ -46,9 +46,9 @@ class MealService {
     }
   }
 
-  async getAll() {
+  async getAll(limit, offset, type) {
     try {
-      const cal = await this.repo.getAll();
+      const cal = await this.repo.getAll(limit, offset, type);
       if (cal) {
         return {
           status: 200,
@@ -81,6 +81,46 @@ class MealService {
           code: CR.serverError,
           message: "Internal server error:" + error,
           dev: "In GetAll MealService",
+        },
+      };
+    }
+  }
+
+  async getByTag(limit, offset, type) {
+    try {
+      const cal = await this.repo.getByTag(limit, offset, type);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetByTag MealService",
         },
       };
     }
@@ -119,7 +159,7 @@ class MealService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In GetAll MealService",
+          dev: "In Get BY ID MealService",
         },
       };
     }
