@@ -7,6 +7,7 @@ const mealRouter = require("./routes/mealRoutes");
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const timetableRouter = require("./routes/timetableRoute");
+const subscriptionRouter = require("./routes/subscriptionRoute");
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/timetable", timetableRouter);
+app.use("/subscription", subscriptionRouter);
 
 app.use("/", (req, res) => {
   res.send("Welcome to the Mealble");

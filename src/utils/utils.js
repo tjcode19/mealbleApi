@@ -68,6 +68,8 @@ const sendEmail = async ({ to, subject, htmlBody }) => {
   }
 };
 
+
+
 module.exports = {
   validateEmail,
   generateAccessToken,

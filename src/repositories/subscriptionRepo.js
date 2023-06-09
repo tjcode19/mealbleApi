@@ -5,8 +5,8 @@ class SubscriptionRepository {
     return await Subscription.create(data);
   }
 
-  async getAll(limit, offset) {
-    return await Subscription.find().lean().sort({ _id: -1 }).skip(offset).limit(limit).populate('subscription.meals.meal');
+  async getAll() {
+    return await Subscription.find().lean();
   }
 
   async getById(id) {

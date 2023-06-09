@@ -10,7 +10,7 @@ class TimetableRepository {
   }
 
   async getById(id) {
-    return await Timetable.findById(id);
+    return await Timetable.findById(id).lean().sort({ _id: -1 }).populate('timetable.meals.meal');
   }
 
   async getByTag(limit, offset, query) {

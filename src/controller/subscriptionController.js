@@ -1,19 +1,15 @@
-const TimetableService = require("../services/timetableService");
+const SubscriptionService = require("../services/subscriptionService");
 const CR = require("../utils/customResponses");
 
-class TimetableController {
+class SubscriptionController {
   constructor() {
-    this.oServices = new TimetableService();
+    this.oServices = new SubscriptionService();
   }
 
   async getAll(req, res) {
     try {
-      const page = req.query.page || 1;
-      const type = req.query.type; // Current page number
-      const limit = req.query.limit || 10; // Number of items per page
-      const offset = (page - 1) * limit; // Offset to skip the required number of items
 
-      const curs = await this.oServices.getAll(limit, offset, type);
+      const curs = await this.oServices.getAll();
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
@@ -61,23 +57,28 @@ class TimetableController {
     const data = req.body;
 
     try {
-      // if (data.name == null || data.name === "") {
-      //   return res.status(400).json({
-      //     code: CR.badRequest,
-      //     message: "Name field is required",
-      //   });
-      // }
+      if (data.name == null || data.name === "") {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Name field is required",
+        });
+      }
 
-      const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
-      res.status(cal.status).json(cal.res);
-    } catch (error) {
-      res.status(500).json({ code: CR.serverError, message: error.message });
-    }
-  }
+      if (data.duration == null || data.duration === "") {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Duration field is required",
+        });
+      }
 
-  async shuffle(req, res) {
-    try {
-      const cal = await this.oServices.reshuffle(req.params.id);
+      if (data.price == null || data.price === "") {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Price field is required",
+        });
+      }
+
+      const cal = await this.oServices.createData(data);
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
@@ -102,4 +103,4 @@ class TimetableController {
   }
 }
 
-module.exports = TimetableController;
+module.exports = SubscriptionController;

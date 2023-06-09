@@ -1,6 +1,8 @@
 const MealRepository = require("../repositories/mealRepo");
 const TimetableRepository = require("../repositories/timetableRepo");
 const CR = require("../utils/customResponses");
+const CU = require("../utils/utils");
+
 const mealService = require("../services/mealService");
 
 class TimetableService {
@@ -12,61 +14,6 @@ class TimetableService {
 
   async createData(userId) {
     try {
-      // Retrieve all the recipes
-      // const meal = await this.repo.getAll(100, 1);
-
-      // // Define the meal categories
-      // const categories = ["BR", "LN", "DN"];
-      // // Define the number of days in the week and meals per day
-      // const daysPerWeek = 7;
-      // const mealsPerDay = categories.length;
-
-      // // Generate a meal timetable for one week
-      // const timetable = [];
-
-      // // Track the last assigned day for each recipe
-      // this.lastAssignedDays = {};
-
-      // for (let i = 0; i < daysPerWeek; i++) {
-      //   const dayMeals = [];
-
-      //   const assignedRecipes = new Set(); // To track assigned recipes for the day
-
-      //   for (let j = 0; j < mealsPerDay; j++) {
-      //     const category = categories[j];
-      //     let recipe;
-
-      //     // Otherwise, find a recipe that has the current category tag and is not already assigned
-      //     const categoryRecipes = meal.filter(
-      //       (r) =>
-      //         r.category.includes(category) &&
-      //         !assignedRecipes.has(r._id) &&
-      //         !this.isRecentlyAssigned(r._id, i)
-      //     );
-
-      //     recipe =
-      //       categoryRecipes[Math.floor(Math.random() * categoryRecipes.length)];
-
-      //     while (recipe === []) {
-      //       recipe =
-      //         categoryRecipes[
-      //           Math.floor(Math.random() * categoryRecipes.length)
-      //         ];
-      //     }
-
-      //     console.log(recipe, "each recipe");
-
-      //     // Add the recipe to the day's meals and mark it as assigned
-      //     dayMeals.push(recipe);
-      //     assignedRecipes.add(recipe._id);
-
-      //     // Update the last assigned day for the recipe
-      //     this.lastAssignedDays[recipe._id] = i;
-      //   }
-
-      //   timetable.push(dayMeals);
-      // }
-
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 7);
@@ -116,17 +63,59 @@ class TimetableService {
     }
   }
 
-  // Helper function to check if a recipe was assigned within the last 3 days
-  isRecentlyAssigned(recipeId, currentDay) {
-    const lastAssignedDay = this.lastAssignedDays[recipeId];
-    return lastAssignedDay !== undefined && currentDay - lastAssignedDay < 2;
+  async reshuffle(id) {
+    try {
+      const cal = await this.repo.getById(id);
+
+      const timetable = await this.generateMealTimetable(cal.startDate);
+
+      if (timetable) {
+        const a = await this.updateData(id, { timetable: timetable });
+        if (!a) {
+          return {
+            status: 200,
+            res: {
+              code: CR.success,
+              message: "Operation Failed",
+              data: reshuffledTimetable,
+            },
+          };
+        }
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Timetable Reshiffled Successfully",
+            data: timetable,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In Create TimetableService",
+        },
+      };
+    }
   }
-
-  // Assuming you have the necessary setup to connect to MongoDB and the Timetable model is already imported
-
-  
-
-  // Assuming you have the necessary setup to connect to MongoDB and the Timetable model is already imported
 
   // Generate a meal timetable for one week
   async generateMealTimetable(startDate) {
@@ -243,6 +232,7 @@ class TimetableService {
   async getAll(limit, offset, type) {
     try {
       const cal = await this.repo.getAll(limit, offset, type);
+      console.log("here", cal);
       if (cal) {
         return {
           status: 200,

@@ -10,25 +10,19 @@ const SubscriptionSchema = mongoose.Schema(
     },
     duration: {
       type: String,
-      default: "7 Days",
+      required: true,
     },
     price: {
       type: String,
+      required: true,
     },
-    dob: {
-      type: String,
+    reshuffle: {
+      type: Number,
+      required: true,
     },
-    otp: {
-      type: String,
-    },
-    country: {
-      type: String,
-    },
-
     active: {
       type: Boolean,
       default: true,
-      required: true,
     },
   },
   { timestamps: true }

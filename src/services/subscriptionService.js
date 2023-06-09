@@ -46,9 +46,9 @@ class SubscriptionService {
     }
   }
 
-  async getAll(limit, offset, type) {
+  async getAll() {
     try {
-      const cal = await this.repo.getAll(limit, offset, type);
+      const cal = await this.repo.getAll();
       if (cal) {
         return {
           status: 200,
