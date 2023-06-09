@@ -1,9 +1,9 @@
-const MealRepository = require("../repositories/mealRepo");
+const SubscriptionRepository = require("../repositories/subscriptionRepo");
 const CR = require("../utils/customResponses");
 
-class MealService {
+class SubscriptionService {
   constructor() {
-    this.repo = new MealRepository();
+    this.repo = new SubscriptionRepository();
   }
 
   async createData(data) {
@@ -11,19 +11,19 @@ class MealService {
       const cal = await this.repo.createData(data);
       if (cal) {
         return {
-          status: 201,
+          status: 200,
           res: {
             code: CR.success,
-            message: "Meal Added Successfully",
+            message: "Sub Added Successfully",
             data: cal,
           },
         };
       } else {
         return {
-          status: 404,
+          status: 500,
           res: {
             code: CR.notFound,
-            message: "No Record Found",
+            message: "Operation Failed",
           },
         };
       }
@@ -40,15 +40,15 @@ class MealService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In GetAll MealService",
+          dev: "In Create TimetableService",
         },
       };
     }
   }
 
-  async getAll(limit, offset) {
+  async getAll(limit, offset, type) {
     try {
-      const cal = await this.repo.getAll(limit, offset);
+      const cal = await this.repo.getAll(limit, offset, type);
       if (cal) {
         return {
           status: 200,
@@ -86,9 +86,9 @@ class MealService {
     }
   }
 
-  async getByTag(limit, offset, type) {
+  async getByRange(limit, offset, query) {
     try {
-      const cal = await this.repo.getByTag(limit, offset, type);
+      const cal = await this.repo.getByTag(limit, offset, query);
       if (cal) {
         return {
           status: 200,
@@ -272,4 +272,4 @@ class MealService {
   }
 }
 
-module.exports = MealService;
+module.exports = SubscriptionService;

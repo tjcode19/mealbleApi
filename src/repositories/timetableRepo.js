@@ -1,21 +1,21 @@
-const Meal = require("../models/Meal");
+const Timetable = require("../models/Timetable");
 
-class MealRepository {
+class TimetableRepository {
   async createData(data) {
-    return await Meal.create(data);
+    return await Timetable.create(data);
   }
 
   async getAll(limit, offset) {
-    return await Meal.find().lean().sort({ _id: -1 }).skip(offset).limit(limit);
+    return await Timetable.find().lean().sort({ _id: -1 }).skip(offset).limit(limit).populate('timetable.meals.meal');
   }
 
   async getById(id) {
-    return await Meal.findById(id);
+    return await Timetable.findById(id);
   }
 
-  async getByTag(limit, offset, type) {
+  async getByTag(limit, offset, query) {
     try {
-      return await Meal.find({ category: type }).lean().sort({ _id: -1 }).skip(offset).limit(limit);
+      return await Timetable.find().lean().sort({ _id: -1 }).skip(offset).limit(limit);
     } catch (error) {
       console.log(error);
     }
@@ -23,19 +23,19 @@ class MealRepository {
 
   async getByQuery(q) {
     try {
-      return await Meal.findOne(q);
+      return await Timetable.findOne(q);
     } catch (error) {
       console.log(error);
     }
   }
 
   async updateData(id, data) {
-    return await Meal.findByIdAndUpdate(id, data, { new: true });
+    return await Timetable.findByIdAndUpdate(id, data, { new: true });
   }
 
   async deleteData(id) {
-    return await Meal.findByIdAndDelete(id);
+    return await Timetable.findByIdAndDelete(id);
   }
 }
 
-module.exports = MealRepository;
+module.exports = TimetableRepository;

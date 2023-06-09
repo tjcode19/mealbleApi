@@ -1,9 +1,9 @@
-const MealService = require("../services/mealService");
+const TimetableService = require("../services/timetableService");
 const CR = require("../utils/customResponses");
 
-class MealController {
+class TimetableController {
   constructor() {
-    this.oServices = new MealService();
+    this.oServices = new TimetableService();
   }
 
   async getAll(req, res) {
@@ -25,16 +25,18 @@ class MealController {
     }
   }
 
-  async getByTag(req, res) {
-
-    console.log("tagbyds")
+  async getByRange(req, res) {
     try {
       const page = req.query.page || 1;
-      const type = req.params.tag; // Current page number
+      const startDate = req.params.sDate;
+      const endDate = req.params.eDate;
       const limit = req.query.limit || 10; // Number of items per page
       const offset = (page - 1) * limit; // Offset to skip the required number of items
 
-      const curs = await this.oServices.getByTag(limit, offset, type);
+      const curs = await this.oServices.getByTag(limit, offset, {
+        startDate: { $gte: startDate },
+        endDate: { $lte: endDate },
+      });
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
@@ -59,32 +61,14 @@ class MealController {
     const data = req.body;
 
     try {
-      if (data.name == null || data.name === "") {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Name field is required",
-        });
-      }
+      // if (data.name == null || data.name === "") {
+      //   return res.status(400).json({
+      //     code: CR.badRequest,
+      //     message: "Name field is required",
+      //   });
+      // }
 
-      if (data.category == null || data.category.length === 0) {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Select one or more category",
-        });
-      }
-      const name = data.name.toLowerCase();
-      const str = name.charAt(0).toUpperCase() + name.slice(1);
-
-      const existM = await this.oServices.mealExist(str);
-      if (existM) {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Meal Already Exist",
-        });
-      }
-
-      data.name = str;
-      const cal = await this.oServices.createData(data);
+      const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
@@ -109,4 +93,4 @@ class MealController {
   }
 }
 
-module.exports = MealController;
+module.exports = TimetableController;
