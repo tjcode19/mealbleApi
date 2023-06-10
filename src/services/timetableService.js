@@ -13,7 +13,6 @@ class TimetableService {
   }
 
   async createData(userId) {
-    console.log("The user id", userId);
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -70,6 +69,16 @@ class TimetableService {
     try {
       const cal = await this.repo.getById(id);
 
+      if (!cal) {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+
       const timetable = await this.generateMealTimetable(cal.startDate);
 
       if (timetable) {
@@ -114,7 +123,7 @@ class TimetableService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In Create TimetableService",
+          dev: "In Shuffle TimetableService",
         },
       };
     }
