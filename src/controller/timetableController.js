@@ -88,7 +88,6 @@ class TimetableController {
       const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
       res.status(cal.status).json(cal.res);
     } catch (error) {
-      console.log("wait oooo", error);
       res.status(500).json({ code: CR.serverError, message: error.message });
     }
   }
