@@ -84,8 +84,10 @@ class TimetableController {
 
   async create(req, res) {
     // const data = req.body;
+    const userId = "64787ec50495ab4d35a5a7de";
+    const subId = req.params.id;
     try {
-      const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
+      const cal = await this.oServices.createData(userId, subId);
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });

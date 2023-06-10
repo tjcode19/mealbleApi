@@ -30,7 +30,7 @@ class TimetableService {
 
       const cal = await this.repo.createData(timetableData);
       if (cal) {
-        this.mRepo.updateData(userId, { sub: subId });
+        this.uRepo.updateData(userId, { sub: subId });
         return {
           status: 200,
           res: {
