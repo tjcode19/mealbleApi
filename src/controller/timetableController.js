@@ -83,7 +83,7 @@ class TimetableController {
   }
 
   async create(req, res) {
-    const data = req.body;
+    // const data = req.body;
     try {
       const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
       res.status(cal.status).json(cal.res);
