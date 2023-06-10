@@ -57,6 +57,16 @@ class TimetableController {
     }
   }
 
+  async getByQuery(req, res) {
+    try {
+      const userId = req.params.id;
+      const cur = await this.oServices.getByQuery({owner:userId});
+      res.status(cur.status).json(cur.res);
+    } catch (error) {
+      res.json({ code: CR.serverError, message: error });
+    }
+  }
+
   async create(req, res) {
     const data = req.body;
 

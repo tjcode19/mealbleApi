@@ -349,6 +349,45 @@ class TimetableService {
     }
   }
 
+  async getByQuery(q) {
+    try {
+      const cal = await this.repo.getByQuery(q);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In Get BY ID MealService",
+        },
+      };
+    }
+  }
+
   async mealExist(name) {
     try {
       const cal = await this.repo.getByQuery({ name: name });
