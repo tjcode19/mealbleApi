@@ -9,10 +9,10 @@ router.route("/verify").post(userController.verifyEmail.bind(userController));
 router.route("/").post(userController.createUser.bind(userController));
 router
   .route("/:id")
-  .get(authenticate, userController.getUserById.bind(userController));
+  .get( userController.getUserById.bind(userController));
 router
   .route("/:id")
-  .patch(authenticate, userController.updateUser.bind(userController));
+  .patch(userController.updateUser.bind(userController));
 router
   .route("/:id")
   .delete(isAdmin, userController.deleteUser.bind(userController));
