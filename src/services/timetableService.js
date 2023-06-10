@@ -1,5 +1,6 @@
 const MealRepository = require("../repositories/mealRepo");
 const TimetableRepository = require("../repositories/timetableRepo");
+const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 
@@ -9,10 +10,11 @@ class TimetableService {
   constructor() {
     this.repo = new TimetableRepository();
     this.mRepo = new MealRepository();
+    this.uRepo = new UserRepository();
     this.lastAssignedDays;
   }
 
-  async createData(userId) {
+  async createData(userId, subId) {
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -26,9 +28,9 @@ class TimetableService {
         timetable: timetable, // The generated timetable array
       };
 
-      console.log(timetableData);
       const cal = await this.repo.createData(timetableData);
       if (cal) {
+        this.mRepo.updateData(userId, { sub: subId });
         return {
           status: 200,
           res: {
