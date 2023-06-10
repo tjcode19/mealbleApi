@@ -13,6 +13,7 @@ class TimetableService {
   }
 
   async createData(userId) {
+    console.log("The user id", userId);
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -25,6 +26,8 @@ class TimetableService {
         endDate: endDate, // The end date of the timetable
         timetable: timetable, // The generated timetable array
       };
+
+      console.log(timetableData);
       const cal = await this.repo.createData(timetableData);
       if (cal) {
         return {
@@ -40,7 +43,7 @@ class TimetableService {
           status: 404,
           res: {
             code: CR.notFound,
-            message: "No Record Found",
+            message: "Unable to create timetable",
           },
         };
       }
@@ -349,7 +352,7 @@ class TimetableService {
     }
   }
 
-  async getByQuery(q) {
+  async getUserRecords(q) {
     try {
       const cal = await this.repo.getByQuery(q);
       if (cal) {
@@ -359,6 +362,45 @@ class TimetableService {
             code: CR.success,
             message: "Query Successful",
             data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In Get BY ID MealService",
+        },
+      };
+    }
+  }
+
+  async getActiveTimetable(q) {
+    try {
+      const cal = await this.repo.getByQuery(q);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal[0],
           },
         };
       } else {

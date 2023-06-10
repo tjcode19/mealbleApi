@@ -57,10 +57,25 @@ class TimetableController {
     }
   }
 
-  async getByQuery(req, res) {
+  async getActiveTimetable(req, res) {
     try {
       const userId = req.params.id;
-      const cur = await this.oServices.getByQuery({ owner: userId });
+      const cur = await this.oServices.getActiveTimetable({
+        owner: userId,
+        active: true,
+      });
+      res.status(cur.status).json(cur.res);
+    } catch (error) {
+      res.json({ code: CR.serverError, message: error });
+    }
+  }
+
+  async getUserRecords(req, res) {
+    try {
+      const userId = req.params.id;
+      const cur = await this.oServices.getUserRecords({
+        owner: userId,
+      });
       res.status(cur.status).json(cur.res);
     } catch (error) {
       res.json({ code: CR.serverError, message: error });
@@ -69,11 +84,11 @@ class TimetableController {
 
   async create(req, res) {
     const data = req.body;
-
     try {
       const cal = await this.oServices.createData("64787ec50495ab4d35a5a7de");
       res.status(cal.status).json(cal.res);
     } catch (error) {
+      console.log("wait oooo", error);
       res.status(500).json({ code: CR.serverError, message: error.message });
     }
   }

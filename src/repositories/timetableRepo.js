@@ -35,7 +35,10 @@ class TimetableRepository {
 
   async getByQuery(q) {
     try {
-      return await Timetable.findOne(q).populate("timetable.meals.meal");
+      return await Timetable.find(q)
+        .lean()
+        .sort({ _id: -1 })
+        .populate("timetable.meals.meal");
     } catch (error) {
       console.log(error);
     }
