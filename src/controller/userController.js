@@ -107,7 +107,6 @@ class UserController {
   }
 
   async getAllUsers(req, res) {
-    console.log("I'm here outlineOffset: ");
     try {
       const page = req.query.page || 1; // Current page number
       const limit = req.query.limit || 10; // Number of items per page
