@@ -9,11 +9,11 @@ const SubscriptionSchema = mongoose.Schema(
       required: true,
     },
     duration: {
-      type: String,
+      type: Number,
       required: true,
     },
     price: {
-      type: String,
+      type: Number,
       required: true,
     },
     reshuffle: {

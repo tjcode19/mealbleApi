@@ -14,7 +14,7 @@ class UserRepository {
   }
 
   async getUserById(userId) {
-    return await User.findById(userId);
+    return await User.findById(userId).populate("sub");
   }
 
   async getUserByQuery(query) {

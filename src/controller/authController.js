@@ -37,7 +37,7 @@ class AuthController {
       res.status(500).json({
         code: CR.serverError,
         message: "Internal server error",
-        dev: "In authController",
+        dev: "In authController" + error,
       });
     }
   }

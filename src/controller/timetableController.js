@@ -1,9 +1,11 @@
 const TimetableService = require("../services/timetableService");
+const SubService = require("../services/subscriptionService");
 const CR = require("../utils/customResponses");
 
 class TimetableController {
   constructor() {
     this.oServices = new TimetableService();
+    this.subService = new SubService();
   }
 
   async getAll(req, res) {
@@ -72,7 +74,7 @@ class TimetableController {
 
   async getUserRecords(req, res) {
     try {
-      const userId = req.params.id;
+      const { userId } = req.decoded;
       const cur = await this.oServices.getUserRecords({
         owner: userId,
       });
@@ -84,10 +86,28 @@ class TimetableController {
 
   async create(req, res) {
     // const data = req.body;
-    const userId = "64787ec50495ab4d35a5a7de";
-    const subId = req.params.id;
+
+    const { userId } = req.decoded;
+    const { subId } = req.params;
     try {
-      const cal = await this.oServices.createData(userId, subId);
+      if (subId == null || subId === "") {
+        return res
+          .status(400)
+          .json({ code: CR.badRequest, message: "SubId missing from the URL" });
+      }
+      const isValidSub = await this.subService.getById(subId);
+
+      if (isValidSub.status !== 200) {
+        return res
+          .status(400)
+          .json({ code: CR.badRequest, message: "Invalid Subscription ID" });
+      }
+
+      const cal = await this.oServices.createData(
+        userId,
+        subId,
+        isValidSub.res.data.duration
+      );
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });

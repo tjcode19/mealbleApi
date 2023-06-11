@@ -16,7 +16,6 @@ class AuthService {
   }
 
   async login(email, password) {
-    let response;
     try {
       const login = await this.authRepository.login(email);
       if (login) {
@@ -27,7 +26,7 @@ class AuthService {
             userId: login._id,
             type: login.role,
           });
-          response = {
+          return {
             status: 200,
             res: {
               code: CR.success,
@@ -40,7 +39,7 @@ class AuthService {
             },
           };
         } else {
-          response = {
+          return {
             status: 400,
             res: {
               code: CR.badRequest,
@@ -49,21 +48,23 @@ class AuthService {
           };
         }
       } else {
-        const userExistNotVerified = this.userService.checkUserExists(email);
+        const userExistNotVerified = await this.userService.checkUserExists(
+          email
+        );
 
         if (!userExistNotVerified) {
           return {
             status: 404,
             res: {
               code: CR.notFound,
-              message: "Login Failed",
+              message: "Login Failed, Invalid Login Credentials",
             },
           };
         }
         const sendOtp = await this.sendOtp(email);
 
         if (sendOtp.status === 200) {
-          response = {
+          return {
             status: 200,
             res: {
               code: CR.success,
@@ -71,6 +72,14 @@ class AuthService {
               userId: sendOtp.res.data.userId,
               message:
                 "You are yet to verify email, an otp has been sent to your email",
+            },
+          };
+        } else {
+          return {
+            status: 500,
+            res: {
+              code: CR.serverError,
+              message: "Operation Failed",
             },
           };
         }
@@ -92,7 +101,6 @@ class AuthService {
         },
       };
     }
-    return response;
   }
 
   async sendOtp(email) {
@@ -215,9 +223,7 @@ class AuthService {
 
   async changePassword(userId, oldPass, newPass) {
     try {
-      
-      const userExist = await this.authRepository.getAuth({_id:userId});
-
+      const userExist = await this.authRepository.getAuth({ _id: userId });
 
       const passwordMatch = await bcrypt.compare(oldPass, userExist.password);
       if (!passwordMatch) {

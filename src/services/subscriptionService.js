@@ -159,7 +159,7 @@ class SubscriptionService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In Get BY ID MealService",
+          dev: "In Get BY ID SubService",
         },
       };
     }

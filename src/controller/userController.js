@@ -5,7 +5,6 @@ const AuthService = require("../services/authService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 
-
 class UserController {
   constructor() {
     this.userService = new UserService();
@@ -136,7 +135,7 @@ class UserController {
 
   async getUserById(req, res) {
     try {
-      const userId = req.params.id;
+      const { userId } = req.decoded;
 
       const user = await this.userService.getUserById(userId);
       if (user) {
@@ -156,7 +155,7 @@ class UserController {
       }
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+        .json({ code: CR.serverError, message: "Internal server error"  + error  });
     }
   }
 
@@ -182,7 +181,7 @@ class UserController {
       }
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+        .json({ code: CR.serverError, message: "Internal server error"});
     }
   }
 

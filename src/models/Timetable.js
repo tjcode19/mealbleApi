@@ -38,7 +38,7 @@ const timetableSchema = new mongoose.Schema({
             meal: {
               type: mongoose.Schema.Types.ObjectId,
               ref: "Meal",
-              required: true,
+              // required: true,
             },
           },
         ],

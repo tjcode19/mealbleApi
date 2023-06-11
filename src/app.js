@@ -11,7 +11,11 @@ const subscriptionRouter = require("./routes/subscriptionRoute");
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
+
+const bodyParser = require("body-parser")
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
