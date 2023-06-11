@@ -22,6 +22,13 @@ class AuthService {
         const passwordMatch = await bcrypt.compare(password, login.password);
 
         if (passwordMatch) {
+          const userData = await this.userService.getUserById(login._id);
+
+          const uData = {
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            sub: userData.sub,
+          };
           const t = CU.generateAccessToken({
             userId: login._id,
             type: login.role,
@@ -34,6 +41,7 @@ class AuthService {
 
               data: {
                 token: t,
+                ...uData,
                 userId: login._id,
               },
             },
