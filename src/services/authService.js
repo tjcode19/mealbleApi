@@ -29,7 +29,7 @@ class AuthService {
           const uData = {
             firstName: userData.firstName,
             lastName: userData.lastName,
-            sub: userData.subInfo,
+            subInfo: userData.subInfo,
           };
           const t = CU.generateAccessToken({
             userId: login._id,
