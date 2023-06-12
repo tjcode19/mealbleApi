@@ -24,10 +24,12 @@ class AuthService {
         if (passwordMatch) {
           const userData = await this.userService.getUserById(login._id);
 
+          console.log(userData);
+
           const uData = {
             firstName: userData.firstName,
             lastName: userData.lastName,
-            sub: userData.sub,
+            sub: userData.subInfo,
           };
           const t = CU.generateAccessToken({
             userId: login._id,

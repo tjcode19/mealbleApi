@@ -25,7 +25,17 @@ const UserSchema = mongoose.Schema(
     country: {
       type: String,
     },
-    sub: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
+    subInfo: {
+      type: {
+        expiryDate: {
+          type: Date,
+          required: true,
+        },
+        sub: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
+      },
+
+      required: true,
+    },
     email: {
       type: String,
       trim: true,
