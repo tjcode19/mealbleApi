@@ -18,6 +18,11 @@ const timetableSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  sub: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subscription",
+    required: true,
+  },
   timetable: {
     type: [
       {
@@ -38,7 +43,7 @@ const timetableSchema = new mongoose.Schema({
             meal: {
               type: mongoose.Schema.Types.ObjectId,
               ref: "Meal",
-              // required: true,
+              required: true,
             },
           },
         ],

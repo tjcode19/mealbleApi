@@ -25,7 +25,8 @@ class TimetableService {
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
-        endDate: endDate, // The end date of the timetable
+        endDate: endDate,
+        sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
       };
 

@@ -11,14 +11,14 @@ class TimetableRepository {
       .sort({ _id: -1 })
       .skip(offset)
       .limit(limit)
-      .populate("timetable.meals.meal");
+      .populate(["timetable.meals.meal", "sub"]);
   }
 
   async getById(id) {
     return await Timetable.findById(id)
       .lean()
       .sort({ _id: -1 })
-      .populate("timetable.meals.meal");
+      .populate(["timetable.meals.meal", "sub"]);
   }
 
   async getByTag(limit, offset, query) {
@@ -38,7 +38,7 @@ class TimetableRepository {
       return await Timetable.find(q)
         .lean()
         .sort({ _id: -1 })
-        .populate("timetable.meals.meal");
+        .populate(["timetable.meals.meal", "sub"]);
     } catch (error) {
       console.log(error);
     }
