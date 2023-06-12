@@ -84,7 +84,7 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(cal.startDate);
+      const timetable = await this.generateMealTimetable(cal.sub.duration);
 
       if (timetable) {
         const a = await this.updateData(id, { timetable: timetable });
