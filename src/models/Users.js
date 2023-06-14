@@ -33,8 +33,6 @@ const UserSchema = mongoose.Schema(
         },
         sub: { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
       },
-
-      required: true,
     },
     email: {
       type: String,
