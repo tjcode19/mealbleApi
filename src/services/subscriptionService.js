@@ -6,7 +6,6 @@ class SubscriptionService {
   constructor() {
     this.repo = new SubscriptionRepository();
     this.userRepo = new UserRepository();
-
   }
 
   async createData(data) {
@@ -49,15 +48,17 @@ class SubscriptionService {
     }
   }
 
-  async getAll() {
-    const {userId} = req.decoded;
+  async getAll(userId) {
     try {
-
       const cal = await this.repo.getAll();
-      const user=  await this.userRepo.getUserById(userId)
+      const user = await this.userRepo.getUserById(userId);
+      let c;
 
-      if(user.subInfo != null){
-        cal.shift;
+      console.log("user", user);
+
+      if (user.subInfo != null) {
+        console.log("user insider", user);
+        c = cal.slice(1);;
       }
       if (cal) {
         return {
@@ -65,7 +66,7 @@ class SubscriptionService {
           res: {
             code: CR.success,
             message: "Query Successful",
-            data: cal,
+            data: c,
           },
         };
       } else {

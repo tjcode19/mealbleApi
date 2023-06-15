@@ -8,8 +8,9 @@ class SubscriptionController {
 
   async getAll(req, res) {
     try {
+      const { userId } = req.decoded;
 
-      const curs = await this.oServices.getAll();
+      const curs = await this.oServices.getAll(userId);
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
