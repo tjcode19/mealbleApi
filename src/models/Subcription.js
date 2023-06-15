@@ -8,16 +8,19 @@ const SubscriptionSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    duration: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    reshuffle: {
-      type: Number,
+    period: {
+      type: {
+        week: {
+          duration: Number,
+          price: Number,
+          shuffle: Number,
+        },
+        month: {
+          duration: Number,
+          price: Number,
+          shuffle: Number,
+        },
+      },
       required: true,
     },
     active: {

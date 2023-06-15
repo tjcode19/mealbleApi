@@ -1,9 +1,12 @@
 const SubscriptionRepository = require("../repositories/subscriptionRepo");
+const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 
 class SubscriptionService {
   constructor() {
     this.repo = new SubscriptionRepository();
+    this.userRepo = new UserRepository();
+
   }
 
   async createData(data) {
@@ -47,8 +50,15 @@ class SubscriptionService {
   }
 
   async getAll() {
+    const {userId} = req.decoded;
     try {
+
       const cal = await this.repo.getAll();
+      const user=  await this.userRepo.getUserById(userId)
+
+      if(user.subInfo != null){
+        cal.shift;
+      }
       if (cal) {
         return {
           status: 200,
