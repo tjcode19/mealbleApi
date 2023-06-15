@@ -53,11 +53,8 @@ class SubscriptionService {
       const cal = await this.repo.getAll();
       const user = await this.userRepo.getUserById(userId);
       let c;
-
-      console.log("user", user);
-
+      
       if (user.subInfo != null) {
-        console.log("user insider", user);
         c = cal.slice(1);;
       }
       if (cal) {
