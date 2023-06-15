@@ -36,7 +36,7 @@ class UserController {
 
       // Check if the user already exists
       const otp = CU.generateOTP(6);
-      userData.otp = otp;
+      userData.otp = "000000"; //otp;
       const userExists = await this.userService.checkUserExists(userData.email);
       if (userExists) {
         return res
