@@ -88,7 +88,7 @@ class TimetableController {
     // const data = req.body;
 
     const { userId } = req.decoded;
-    const { subId } = req.params;
+    const { subId, duration } = req.params;
     try {
       if (subId == null || subId === "") {
         return res
@@ -96,6 +96,9 @@ class TimetableController {
           .json({ code: CR.badRequest, message: "SubId missing from the URL" });
       }
       const isValidSub = await this.subService.getById(subId);
+
+      console.log(isValidSub);
+      // return;
 
       if (isValidSub.status !== 200) {
         return res
@@ -106,7 +109,7 @@ class TimetableController {
       const cal = await this.oServices.createData(
         userId,
         subId,
-        isValidSub.res.data.duration
+        duration
       );
       res.status(cal.status).json(cal.res);
     } catch (error) {
