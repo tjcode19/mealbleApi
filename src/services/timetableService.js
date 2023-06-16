@@ -21,6 +21,23 @@ class TimetableService {
       const dur = duration || 7;
       endDate.setDate(startDate.getDate() + dur);
 
+      const tTable = await this.repo.getByQuery({
+        endDate: {
+          $gte: startDate,
+        },
+        active: true,
+      });
+
+      if (tTable) {
+        return {
+          status: 400,
+          res: {
+            code: CR.badRequest,
+            message: "You still have an active subscription",
+          },
+        };
+      }
+
       const timetable = await this.generateMealTimetable(dur);
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable

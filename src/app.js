@@ -8,12 +8,13 @@ const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const timetableRouter = require("./routes/timetableRoute");
 const subscriptionRouter = require("./routes/subscriptionRoute");
+const SchedulerService = require("./services/schedulerService");
 
 const app = express();
 app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -36,10 +37,18 @@ mongoose.connect(process.env.DB_CONNECTION, {
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", function () {
-  console.log(db.readyState, "Connected successfully");
+  console.log("DB Connected successfully", db.readyState);
 });
 
+//Start Scheduler
+scheduler = new SchedulerService();
+
 //Start the server
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Server started on port", process.env.PORT);
+
+  // Define and start the scheduler within the callback function
+  scheduler.startScheduler();
+});
 
 module.exports = app;
