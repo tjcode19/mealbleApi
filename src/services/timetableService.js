@@ -26,6 +26,8 @@ class TimetableService {
         active: true,
       });
 
+      console.log("table", tTable);
+
       if (tTable) {
         return {
           status: 400,
