@@ -22,9 +22,7 @@ class TimetableService {
       endDate.setDate(startDate.getDate() + dur);
 
       const tTable = await this.repo.getByQuery({
-        endDate: {
-          $gte: startDate,
-        },
+        owner: userId,
         active: true,
       });
 
