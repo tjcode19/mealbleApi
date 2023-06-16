@@ -52,17 +52,18 @@ class SubscriptionService {
     try {
       const cal = await this.repo.getAll();
       const user = await this.userRepo.getUserById(userId);
-      let c;
-      
-      if (user.subInfo != null) {
-        c = cal.slice(1);;
-      }
+      let c ;
+
       if (cal) {
+        c = cal;
+        if (user.subInfo != null) {
+          c = cal.slice(1);
+        }
         return {
           status: 200,
           res: {
             code: CR.success,
-            message: "Query Successful",
+            message: "Subscription Query Successful",
             data: c,
           },
         };
