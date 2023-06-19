@@ -97,8 +97,7 @@ class TimetableController {
       }
       const isValidSub = await this.subService.getById(subId);
 
-      console.log(isValidSub);
-      // return;
+    
 
       if (isValidSub.status !== 200) {
         return res

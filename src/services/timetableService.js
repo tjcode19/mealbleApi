@@ -18,7 +18,7 @@ class TimetableService {
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
-      const dur = duration || 7;
+      const dur = duration || 3;
       endDate.setDate(startDate.getDate() + dur);
 
       const tTable = await this.repo.getByQuery({
@@ -210,7 +210,7 @@ class TimetableService {
             const lastAssignment = lastAssignmentMap.get(meal._id);
             return (
               !lastAssignment ||
-              lastAssignment <= currentDate - 2 * 24 * 60 * 60 * 1000
+              lastAssignment <= currentDate - 4 * 24 * 60 * 60 * 1000
             );
           });
 
