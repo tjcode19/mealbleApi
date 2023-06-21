@@ -24,12 +24,19 @@ class AuthService {
         if (passwordMatch) {
           const userData = await this.userService.getUserById(login._id);
 
-          console.log(userData);
+          const currentDate = new Date();
+          let hasActiveSub = false;
+
+          if (userData.subInfo !== null) {
+            const expDate = new Date(userData.subInfo.expiryDate);
+            hasActiveSub = currentDate < expDate;
+          }
 
           const uData = {
             firstName: userData.firstName,
             lastName: userData.lastName,
             subInfo: userData.subInfo,
+            activeSub: hasActiveSub,
           };
           const t = CU.generateAccessToken({
             userId: login._id,
