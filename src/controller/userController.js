@@ -161,7 +161,7 @@ class UserController {
 
   async updateUser(req, res) {
     try {
-      const userId = req.params.id;
+      const {userId} = req.decoded;
       const userData = req.body;
       const updatedUser = await this.userService.updateUser(userId, userData);
       if (updatedUser) {

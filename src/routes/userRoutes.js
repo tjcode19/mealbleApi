@@ -10,7 +10,7 @@ router.route("/").post(userController.createUser.bind(userController));
 router
   .route("/single")
   .get(authenticate, userController.getUserById.bind(userController));
-router.route("/:id").patch(userController.updateUser.bind(userController));
+router.route("/").patch(userController.updateUser.bind(userController));
 router
   .route("/:id")
   .delete(isAdmin, userController.deleteUser.bind(userController));
