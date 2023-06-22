@@ -155,13 +155,16 @@ class UserController {
       }
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error"  + error  });
+        .json({
+          code: CR.serverError,
+          message: "Internal server error" + error,
+        });
     }
   }
 
   async updateUser(req, res) {
     try {
-      const {userId} = req.decoded;
+      const { userId } = req.decoded;
       const userData = req.body;
       const updatedUser = await this.userService.updateUser(userId, userData);
       if (updatedUser) {
@@ -181,7 +184,10 @@ class UserController {
       }
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error"});
+        .json({
+          code: CR.serverError,
+          message: "Internal server error" + error,
+        });
     }
   }
 
