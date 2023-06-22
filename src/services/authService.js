@@ -37,6 +37,7 @@ class AuthService {
             lastName: userData.lastName,
             subInfo: userData.subInfo,
             activeSub: hasActiveSub,
+            email: email,
           };
           const t = CU.generateAccessToken({
             userId: login._id,
