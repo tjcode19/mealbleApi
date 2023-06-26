@@ -10,11 +10,11 @@ class UserRepository {
   }
 
   async getAllUsers(limit, offset) {
-    return await User.find().sort({ _id: -1 }).skip(offset).limit(limit).lean().populate( "subInfo.sub");
+    return await User.find().sort({ _id: -1 }).skip(offset).limit(limit).lean();
   }
 
   async getUserById(userId) {
-    return await User.findById(userId).populate("subInfo.sub");
+    return await User.findById(userId);
   }
 
   async getUserByQuery(query) {

@@ -47,8 +47,8 @@ class TimetableService {
 
       const cal = await this.repo.createData(timetableData);
       if (cal) {
-        const sb = { expiryDate: endDate, sub: subId };
-        this.uRepo.updateUser(userId, { subInfo: sb });
+        // const sb = { expiryDate: endDate, sub: subId };
+        // this.uRepo.updateUser(userId, { subInfo: sb });
         return {
           status: 200,
           res: {
