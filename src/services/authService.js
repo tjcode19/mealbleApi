@@ -1,5 +1,7 @@
 const AuthRepository = require("../repositories/authRepo");
+const TimetableRepository = require("../repositories/timetableRepo");
 const UserService = require("../services/userService");
+const CommonService = require("../services/commonService");
 const bcrypt = require("bcrypt");
 
 const CR = require("../utils/customResponses");
@@ -8,7 +10,9 @@ const CU = require("../utils/utils");
 class AuthService {
   constructor() {
     this.authRepository = new AuthRepository();
+    this.timetableRepo = new TimetableRepository();
     this.userService = new UserService();
+    this.commonService = new CommonService();
   }
 
   async createAuth(userData) {
@@ -18,25 +22,15 @@ class AuthService {
   async login(email, password) {
     try {
       const login = await this.authRepository.login(email);
+
       if (login) {
         const passwordMatch = await bcrypt.compare(password, login.password);
 
         if (passwordMatch) {
-          const userData = await this.userService.getUserById(login._id);
-
-          const currentDate = new Date();
-          let hasActiveSub = false;
-
-          if (userData.subInfo !== null) {
-            const expDate = new Date(userData.subInfo.expiryDate);
-            hasActiveSub = currentDate < expDate;
-          }
+          const hasActiveSub = await this.commonService.isActiveSub(login._id);
 
           const uData = {
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            subInfo: userData.subInfo,
-            activeSub: hasActiveSub,
+            activeSub: hasActiveSub.length > 0 ? true : false,
             email: email,
           };
           const t = CU.generateAccessToken({
@@ -50,7 +44,8 @@ class AuthService {
               message: "Login Successful",
 
               data: {
-                token: t,
+                token: t.token,
+                tokenExp: t.expirationDate,
                 ...uData,
                 userId: login._id,
               },

@@ -42,10 +42,25 @@ const generateSKU = async () => {
   }
 };
 
+// const generateAccessToken = function ({ userId, role, otp }) {
+//   return jwt.sign({ userId, role, otp }, process.env.JWT_SECRET, {
+//     expiresIn: "30d",
+//   });
+// };
+
 const generateAccessToken = function ({ userId, role, otp }) {
-  return jwt.sign({ userId, role, otp }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
+  const expiresIn = "30d";
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + parseInt(expiresIn)); // Add 30 days
+
+  const token = jwt.sign({ userId, role, otp }, process.env.JWT_SECRET, {
+    expiresIn,
   });
+
+  return {
+    token,
+    expirationDate,
+  };
 };
 
 const sendEmail = async ({ to, subject, htmlBody }) => {

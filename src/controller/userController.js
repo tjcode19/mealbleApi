@@ -138,27 +138,13 @@ class UserController {
       const { userId } = req.decoded;
 
       const user = await this.userService.getUserById(userId);
-      if (user) {
-        res.status(200).json({
-          code: CR.success,
-          message: "Request Successful",
-          data: user,
-        });
-      } else {
-        res.status(404).json({ code: CR.notFound, message: "User not found" });
-      }
+      res.status(user.status).json(user.res);
     } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return res
-          .status(500)
-          .json({ code: CR.serverError, message: "Database connection error" });
-      }
-      res
-        .status(500)
-        .json({
-          code: CR.serverError,
-          message: "Internal server error" + error,
-        });
+      res.status(500).json({
+        code: CR.serverError,
+        message: "Internal server error",
+        dev: "In authController" + error,
+      });
     }
   }
 
@@ -182,12 +168,10 @@ class UserController {
           .status(500)
           .json({ code: CR.serverError, message: "Database connection error" });
       }
-      res
-        .status(500)
-        .json({
-          code: CR.serverError,
-          message: "Internal server error" + error,
-        });
+      res.status(500).json({
+        code: CR.serverError,
+        message: "Internal server error" + error,
+      });
     }
   }
 

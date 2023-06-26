@@ -1,5 +1,6 @@
 const UserRepository = require("../repositories/userRepo");
 const AuthRepository = require("../repositories/authRepo");
+const CommonService = require("../services/commonService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 const bcrypt = require("bcrypt");
@@ -8,6 +9,7 @@ class UserService {
   constructor() {
     this.userRepository = new UserRepository();
     this.authRepository = new AuthRepository();
+    this.commonService = new CommonService();
   }
 
   async createUser(userData) {
@@ -19,7 +21,41 @@ class UserService {
   }
 
   async getUserById(userId) {
-    return await this.userRepository.getUserById(userId);
+    try {
+      let user = await this.userRepository.getUserById(userId);
+      if (user) {
+        const activeSub = await this.commonService.isActiveSub(userId);
+
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query User By Successful",
+            data: {user, activeSub},
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "User not found",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: { code: CR.serverError, message: "Internal server error" + error },
+      };
+    }
   }
 
   async updateUser(userId, userData) {
