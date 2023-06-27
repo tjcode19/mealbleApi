@@ -101,7 +101,8 @@ class UserService {
               code: CR.accepted,
               message: "Email Verification Successful",
               data: {
-                token: t,
+                token: t.token,
+                tokenExp: t.expirationDate,
               },
             },
           };
