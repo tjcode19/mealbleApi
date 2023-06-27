@@ -103,6 +103,9 @@ class UserService {
               data: {
                 token: t.token,
                 tokenExp: t.expirationDate,
+                activeSub: false,
+                email: otpExist.email,
+                userId: userId,
               },
             },
           };
