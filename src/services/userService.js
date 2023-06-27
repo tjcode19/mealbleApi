@@ -26,12 +26,14 @@ class UserService {
       if (user) {
         const activeSub = await this.commonService.isActiveSub(userId);
 
+        const isFreshUser = await this.commonService.isFreshUser(userId);
+
         return {
           status: 200,
           res: {
             code: CR.success,
             message: "Query User By Successful",
-            data: {user, activeSub},
+            data: { user, activeSub, isFreshUser },
           },
         };
       } else {

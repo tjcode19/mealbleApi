@@ -15,6 +15,13 @@ class CommonService {
     });
     return subInfo;
   }
+
+  async isFreshUser(userId) {
+    const recs = await this.timetableRepo.getByQuery({
+      owner: userId,
+    });
+    return recs.length > 0 ? false : true;
+  }
 }
 
 module.exports = CommonService;
