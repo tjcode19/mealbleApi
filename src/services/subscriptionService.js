@@ -56,7 +56,7 @@ class SubscriptionService {
 
       if (cal) {
         c = cal;
-        if (user.subInfo != null) {
+        if (user.usedFree) {
           c = cal.slice(1);
         }
         return {
