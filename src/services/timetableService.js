@@ -48,7 +48,10 @@ class TimetableService {
       const cal = await this.repo.createData(timetableData);
       if (cal) {
         // const sb = { expiryDate: endDate, sub: subId };
-        // this.uRepo.updateUser(userId, { subInfo: sb });
+        if (subId === "6482da425efe572f0274178a") {
+          this.uRepo.updateUser(userId, { usedFree: true });
+        }
+
         return {
           status: 200,
           res: {
@@ -237,9 +240,6 @@ class TimetableService {
           meals,
         });
       }
-
-      console.log("Generated Meal Timetable:");
-      console.log(timetable);
       return timetable;
     } catch (error) {
       console.error("Error generating meal timetable:", error);
@@ -275,131 +275,6 @@ class TimetableService {
       [array[i], array[j]] = [array[j], array[i]];
     }
   };
-
-  // Generate a meal timetable for one week
-  // async generateMealTimetable(startDate, duration) {
-  //   const daysOfWeek = [
-  //     "Sunday",
-  //     "Monday",
-  //     "Tuesday",
-  //     "Wednesday",
-  //     "Thursday",
-  //     "Friday",
-  //     "Saturday",
-  //   ];
-  //   const timetable = [];
-  //   const categoryMeals = {};
-
-  //   try {
-  //     // Fetch all recipes from the database
-  //     const recipes = await this.mRepo.getAll(100, 1);
-
-  //     // Group recipes by category
-  //     recipes.forEach((recipe) => {
-  //       recipe.category.forEach((category) => {
-  //         if (!categoryMeals[category]) {
-  //           categoryMeals[category] = [];
-  //         }
-  //         categoryMeals[category].push(recipe);
-  //       });
-  //     });
-
-  //     // Generate meals for each day of the week
-  //     for (let i = 0; i < duration; i++) {
-  //       const currentDate = new Date(startDate);
-  //       currentDate.setDate(startDate.getDate() + i);
-  //       const currentDay = daysOfWeek[currentDate.getDay()];
-
-  //       const meals = [];
-  //       const nutrientsCount = {};
-  //       const lastAssignmentMap = new Map();
-
-  //       // Generate meals for each category
-  //       for (const category in categoryMeals) {
-  //         const availableMeals = categoryMeals[category];
-
-  //         let selectedMeal = null;
-  //         let retries = 0;
-
-  //         // Attempt to select a meal that hasn't been assigned yet or hasn't been assigned in the last 4 days
-  //         while (!selectedMeal && retries < 50) {
-  //           const randomIndex = Math.floor(
-  //             Math.random() * availableMeals.length
-  //           );
-
-  //           const mealToCheck = availableMeals[randomIndex];
-
-  //           const lastAssignmentDate = lastAssignmentMap.get(mealToCheck._id); // Get last assignment date from the map
-
-  //           console.log("CurrentDate:", currentDate);
-  //           // console.log("LastAssigned:", lastAssignmentDate);
-
-  //           if (lastAssignmentDate) {
-  //             console.log("LastAssigned:", lastAssignmentDate);
-  //             const d = this.days(lastAssignmentDate, currentDate);
-  //             console.log("Calculated", d);
-
-  //             break;
-  //           }
-
-  //           console.log("What is next");
-
-  //           if (
-  //             (!lastAssignmentDate ||
-  //               lastAssignmentDate < currentDate - 4 * 24 * 60 * 60 * 1000) &&
-  //             this.meetsNutrientRequirements(mealToCheck, nutrientsCount)
-  //           ) {
-  //             selectedMeal = mealToCheck;
-  //             lastAssignmentMap.set(mealToCheck._id, currentDate); // Update the last assignment date in the map
-  //             this.updateNutrientCount(mealToCheck, nutrientsCount);
-  //           }
-
-  //           retries++;
-  //         }
-
-  //         // Add the selected meal to the meals array for the current day
-  //         meals.push({
-  //           date: currentDate,
-  //           category: category,
-  //           meal: selectedMeal,
-  //         });
-
-  //         // console.log("Selected Meal", selectedMeal);
-  //       }
-
-  //       // Add the meals for the current day to the timetable
-  //       timetable.push({
-  //         day: currentDay,
-  //         meals: meals,
-  //       });
-  //     }
-
-  //     return timetable;
-  //   } catch (error) {
-  //     console.error("Error generating meal timetable:", error);
-  //   }
-  // }
-
-  // // Function to check if a meal meets nutrient requirements
-  // meetsNutrientRequirements(meal, nutrientsCount) {
-  //   for (const nutrient of meal.nutrients) {
-  //     if (!nutrientsCount[nutrient]) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
-
-  // // Function to update nutrient count after selecting a meal
-  // updateNutrientCount(meal, nutrientsCount) {
-  //   for (const nutrient of meal.nutrients) {
-  //     if (nutrientsCount[nutrient]) {
-  //       nutrientsCount[nutrient]++;
-  //     } else {
-  //       nutrientsCount[nutrient] = 1;
-  //     }
-  //   }
-  // }
 
   async getAll(limit, offset, type) {
     try {
