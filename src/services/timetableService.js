@@ -21,6 +21,8 @@ class TimetableService {
       const dur = duration || 3;
       endDate.setDate(startDate.getDate() + dur);
 
+      var date = new Date(new Date().setDate(new Date().getDate() + dur));
+
       const tTable = await this.repo.getByQuery({
         owner: userId,
         active: true,
@@ -40,7 +42,7 @@ class TimetableService {
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
-        endDate: endDate,
+        endDate: date,
         sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
       };
