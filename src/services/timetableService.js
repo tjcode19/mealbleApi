@@ -200,7 +200,7 @@ class TimetableService {
       //   currentDate.setDate(startDate.getDate() + i);
       //   const currentDay = daysOfWeek[currentDate.getDay()];
 
-      for (let i = 0; i < numDays; i++) {
+      for (let i = 0; i <= numDays; i++) {
         const currentDate = new Date();
         currentDate.setDate(currentDate.getDate() + i);
         const currentDay = daysOfWeek[currentDate.getDay()];
