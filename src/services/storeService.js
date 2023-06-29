@@ -37,7 +37,7 @@ class StoreService {
       const finalStore = [];
 
       allMealInStoreCounts.forEach((count, obj) => {
-        const data = { meal: obj, count };
+        const data = { mealItem: obj, count };
 
         finalStore.push(data);
       });
