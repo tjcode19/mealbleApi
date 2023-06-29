@@ -37,7 +37,7 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(dur);
+      const timetable = await this.generateMealTimetable(dur, startDate);
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
@@ -103,7 +103,7 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(cal.sub.duration);
+      const timetable = await this.generateMealTimetable(cal.sub.duration, cal.startDate);
 
       if (timetable) {
         const a = await this.updateData(id, { timetable: timetable });
@@ -162,7 +162,7 @@ class TimetableService {
   // Assuming you have the necessary setup to connect to MongoDB and the Timetable model is already imported
 
   // Generate a meal timetable for the given number of days
-  generateMealTimetable = async (numDays) => {
+  generateMealTimetable = async (numDays, startDate) => {
     const daysOfWeek = [
       "Sunday",
       "Monday",
@@ -198,7 +198,7 @@ class TimetableService {
 
 
       for (let i = 0; i <= numDays; i++) {
-        const currentDate = new Date();
+        const currentDate = new Date(startDate);
         currentDate.setDate(currentDate.getDate() + i);
         const currentDay = daysOfWeek[currentDate.getDay()];
         const meals = [];
