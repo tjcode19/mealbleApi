@@ -196,9 +196,6 @@ class TimetableService {
       const timetable = [];
       const lastAssignmentMap = new Map();
 
-      // const currentDate = new Date(startDate);
-      //   currentDate.setDate(startDate.getDate() + i);
-      //   const currentDay = daysOfWeek[currentDate.getDay()];
 
       for (let i = 0; i <= numDays; i++) {
         const currentDate = new Date();

@@ -18,6 +18,9 @@ const timetableSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  period: {
+    type: String,
+  },
   sub: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subscription",
