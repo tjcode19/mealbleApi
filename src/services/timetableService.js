@@ -21,7 +21,6 @@ class TimetableService {
       const dur = duration || 3;
       endDate.setDate(startDate.getDate() + parseInt(dur));
 
-
       const tTable = await this.repo.getByQuery({
         owner: userId,
         active: true,
@@ -42,6 +41,7 @@ class TimetableService {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
         endDate: endDate,
+        period:dur,
         sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
       };
@@ -93,6 +93,8 @@ class TimetableService {
     try {
       const cal = await this.repo.getById(id);
 
+      console.log(cal);
+
       if (!cal) {
         return {
           status: 404,
@@ -103,7 +105,10 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(cal.sub.duration, cal.startDate);
+      const timetable = await this.generateMealTimetable(
+        cal.period,
+        cal.startDate
+      );
 
       if (timetable) {
         const a = await this.updateData(id, { timetable: timetable });
@@ -195,7 +200,6 @@ class TimetableService {
       // Step 3: Plan meals for each day providing the 4 categories
       const timetable = [];
       const lastAssignmentMap = new Map();
-
 
       for (let i = 0; i <= numDays; i++) {
         const currentDate = new Date(startDate);

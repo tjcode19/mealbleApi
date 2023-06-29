@@ -19,7 +19,7 @@ const timetableSchema = new mongoose.Schema({
     default: true,
   },
   period: {
-    type: String,
+    type: Number,
   },
   sub: {
     type: mongoose.Schema.Types.ObjectId,
