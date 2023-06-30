@@ -95,6 +95,12 @@ class TimetableController {
           .status(400)
           .json({ code: CR.badRequest, message: "SubId missing from the URL" });
       }
+
+      if (type == null || type === "") {
+        return res
+          .status(400)
+          .json({ code: CR.badRequest, message: "Sub Type missing from the URL" });
+      }
       const isValidSub = await this.subService.getById(subId);
 
       if (isValidSub.status !== 200) {
@@ -102,9 +108,6 @@ class TimetableController {
           .status(400)
           .json({ code: CR.badRequest, message: "Invalid Subscription ID" });
       }
-
-      console.log("fik", isValidSub);
-
       let dur, shuffle, regenerate;
       const t = isValidSub.res.data.period;
 
