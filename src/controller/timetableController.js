@@ -88,7 +88,7 @@ class TimetableController {
     // const data = req.body;
 
     const { userId } = req.decoded;
-    const { subId, duration } = req.params;
+    const { subId, type } = req.params;
     try {
       if (subId == null || subId === "") {
         return res
@@ -97,18 +97,31 @@ class TimetableController {
       }
       const isValidSub = await this.subService.getById(subId);
 
-    
-
       if (isValidSub.status !== 200) {
         return res
           .status(400)
           .json({ code: CR.badRequest, message: "Invalid Subscription ID" });
       }
 
+      let dur, shuffle, regenerate;
+      let t;
+
+      if (type == "WK") {
+        t = dur = isValidSub.res.period.week;
+      } else {
+        t = dur = isValidSub.res.period.month;
+      }
+
+      dur = t.duration;
+      shuffle = t.shuffle;
+      regenerate = t.regenerate;
+
       const cal = await this.oServices.createData(
         userId,
         subId,
-        duration
+        dur,
+        shuffle,
+        regenerate
       );
       res.status(cal.status).json(cal.res);
     } catch (error) {

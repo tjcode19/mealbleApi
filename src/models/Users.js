@@ -29,7 +29,7 @@ const UserSchema = mongoose.Schema(
       type: String,
     },
     usedFree: {
-      type: Boolean
+      type: Boolean,
     },
     email: {
       type: String,

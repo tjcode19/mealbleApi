@@ -11,14 +11,18 @@ const SubscriptionSchema = mongoose.Schema(
     period: {
       type: {
         week: {
+          id: { type: String, default: "WK" },
           duration: Number,
           price: Number,
           shuffle: Number,
+          regenerate: Number,
         },
         month: {
+          id: { type: String, default: "MT" },
           duration: Number,
           price: Number,
           shuffle: Number,
+          regenerate: Number,
         },
       },
       required: true,

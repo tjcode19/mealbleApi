@@ -18,8 +18,12 @@ const timetableSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  period: {
-    type: Number,
+  subData: {
+    type: {
+      shuffle: Number,
+      regenerate: Number,
+      period: Number,
+    },
   },
   sub: {
     type: mongoose.Schema.Types.ObjectId,

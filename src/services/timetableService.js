@@ -14,7 +14,7 @@ class TimetableService {
     this.lastAssignedDays;
   }
 
-  async createData(userId, subId, duration) {
+  async createData(userId, subId, duration, shuffle, regenerate) {
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -36,12 +36,12 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(dur, startDate);
+      const timetable = await this.generateMealTimetable(dur, startDate, );
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
         endDate: endDate,
-        period:dur,
+        subData: { period: dur, shuffle, regenerate },
         sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
       };
