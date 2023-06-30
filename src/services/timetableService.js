@@ -106,7 +106,7 @@ class TimetableService {
       }
 
       const timetable = await this.generateMealTimetable(
-        cal.period,
+        cal.subData.period,
         cal.startDate
       );
 
