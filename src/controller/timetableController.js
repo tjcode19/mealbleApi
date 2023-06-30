@@ -103,18 +103,20 @@ class TimetableController {
           .json({ code: CR.badRequest, message: "Invalid Subscription ID" });
       }
 
+      console.log("fik", isValidSub);
+
       let dur, shuffle, regenerate;
-      let t;
+      const t = isValidSub.res.data.period;
 
       if (type == "WK") {
-        t = dur = isValidSub.res.period.week;
+        dur = t.week.duration;
+        shuffle = t.week.shuffle;
+        regenerate = t.week.regenerate;
       } else {
-        t = dur = isValidSub.res.period.month;
+        dur = t.month.duration;
+        shuffle = t.month.shuffle;
+        regenerate = t.month.regenerate;
       }
-
-      dur = t.duration;
-      shuffle = t.shuffle;
-      regenerate = t.regenerate;
 
       const cal = await this.oServices.createData(
         userId,
