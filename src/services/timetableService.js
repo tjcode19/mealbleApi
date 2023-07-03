@@ -107,7 +107,7 @@ class TimetableService {
           status: 400,
           res: {
             code: CR.badRequest,
-            message: "No Record Found",
+            message: "Unsufficient Unit",
           },
         };
       }
@@ -124,7 +124,7 @@ class TimetableService {
         });
         if (!a) {
           return {
-            status: 200,
+            status: 500,
             res: {
               code: CR.success,
               message: "Operation Failed",
@@ -136,7 +136,7 @@ class TimetableService {
           status: 200,
           res: {
             code: CR.success,
-            message: "Timetable Reshiffled Successfully",
+            message: "Timetable Regerated Successfully",
             data: timetable,
           },
         };
