@@ -136,7 +136,16 @@ class TimetableController {
 
   async shuffle(req, res) {
     try {
-      const cal = await this.oServices.reshuffle(req.params.id);
+      const cal = await this.oServices.shuffle(req.params.id);
+      res.status(cal.status).json(cal.res);
+    } catch (error) {
+      res.status(500).json({ code: CR.serverError, message: error.message });
+    }
+  }
+
+  async regenerate(req, res) {
+    try {
+      const cal = await this.oServices.regenerate(req.params.id);
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });

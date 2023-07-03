@@ -12,6 +12,7 @@ router
   .route("/generate/:subId/:type")
   .get(authenticate, controller.create.bind(controller));
 router.route("/shuffle/:id").get(controller.shuffle.bind(controller));
+router.route("/regenerate/:id").get(controller.regenerate.bind(controller));
 router.route("/:id").delete(controller.delete.bind(controller));
 router
   .route("/records")

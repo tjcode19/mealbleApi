@@ -36,7 +36,7 @@ class TimetableService {
         };
       }
 
-      const timetable = await this.generateMealTimetable(dur, startDate, );
+      const timetable = await this.generateMealTimetable(dur, startDate);
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
@@ -89,17 +89,24 @@ class TimetableService {
     }
   }
 
-  async reshuffle(id) {
+  async regenerate(id) {
     try {
       const cal = await this.repo.getById(id);
-
-      console.log(cal);
-
       if (!cal) {
         return {
           status: 404,
           res: {
             code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+
+      if (cal.subData.regenerate < 1) {
+        return {
+          status: 400,
+          res: {
+            code: CR.badRequest,
             message: "No Record Found",
           },
         };
@@ -111,7 +118,10 @@ class TimetableService {
       );
 
       if (timetable) {
-        const a = await this.updateData(id, { timetable: timetable });
+        const a = await this.updateData(id, {
+          timetable: timetable,
+          $set: { "subData.regenerate": cal.subData.regenerate - 1 },
+        });
         if (!a) {
           return {
             status: 200,
@@ -157,6 +167,8 @@ class TimetableService {
       };
     }
   }
+
+  shuffle() {}
 
   days(lastAssignDate, currentDate) {
     let difference = lastAssignDate.getTime() - currentDate.getTime();
