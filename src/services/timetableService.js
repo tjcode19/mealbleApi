@@ -167,7 +167,7 @@ class TimetableService {
     }
   }
 
-  async shuffle() {
+  async shuffle(id) {
     try {
       const cal = await this.repo.getById(id);
       if (!cal) {
