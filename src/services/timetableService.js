@@ -194,7 +194,7 @@ class TimetableService {
 
       // if (timetable) {
       const a = await this.updateData(id, {
-        timetable: timetable,
+        // timetable: timetable,
         $set: { "subData.shuffle": cal.subData.regenerate - 1 },
       });
       if (!a) {
