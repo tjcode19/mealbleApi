@@ -128,7 +128,6 @@ class TimetableService {
             res: {
               code: CR.success,
               message: "Operation Failed",
-              data: reshuffledTimetable,
             },
           };
         }
@@ -136,7 +135,7 @@ class TimetableService {
           status: 200,
           res: {
             code: CR.success,
-            message: "Timetable Regerated Successfully",
+            message: "Timetable Regenerated Successfully",
             data: timetable,
           },
         };
@@ -168,7 +167,81 @@ class TimetableService {
     }
   }
 
-  shuffle() {}
+  async shuffle() {
+    try {
+      const cal = await this.repo.getById(id);
+      if (!cal) {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
+      }
+
+      if (cal.subData.shuffle < 1) {
+        return {
+          status: 400,
+          res: {
+            code: CR.badRequest,
+            message: "Unsufficient Unit",
+          },
+        };
+      }
+
+      //shuffle timetable
+
+      // if (timetable) {
+      const a = await this.updateData(id, {
+        timetable: timetable,
+        $set: { "subData.shuffle": cal.subData.regenerate - 1 },
+      });
+      if (!a) {
+        return {
+          status: 500,
+          res: {
+            code: CR.success,
+            message: "Operation Failed",
+            // data: reshuffledTimetable,
+          },
+        };
+      }
+      return {
+        status: 200,
+        res: {
+          code: CR.success,
+          message: "Timetable Shuffled Successfully",
+          // data: timetable,
+        },
+      };
+      // } else {
+      //   return {
+      //     status: 404,
+      //     res: {
+      //       code: CR.notFound,
+      //       message: "No Record Found",
+      //     },
+      //   };
+      // }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In Shuffle TimetableService",
+        },
+      };
+    }
+  }
 
   days(lastAssignDate, currentDate) {
     let difference = lastAssignDate.getTime() - currentDate.getTime();
