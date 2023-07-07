@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 
 const mongoose = require("mongoose");
 require("dotenv/config");
@@ -27,17 +27,12 @@ app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/store", storeRouter);
 
-app.use(cors({
-  origin: "https://mealbleapi-58d2.onrender.com"
-}
-))
-app.options('*', cors())
+app.use(cors());
+// app.options("*", cors());
 
 app.use("/", (req, res) => {
   res.send("Welcome to the Mealble");
 });
-
-
 
 //Connect to DB
 mongoose.connect(process.env.DB_CONNECTION, {
