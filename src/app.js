@@ -20,6 +20,8 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cors());
+
 app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
@@ -27,7 +29,7 @@ app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/store", storeRouter);
 
-app.use(cors());
+
 // app.options("*", cors());
 
 app.use("/", (req, res) => {
