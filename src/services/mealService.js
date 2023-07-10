@@ -288,7 +288,7 @@ class MealService {
 
       // Create the file path based on your API URL structure
       const apiURL = process.env.BASE_URL;
-      const filePath = `upload/${newName}`;
+      const filePath = `uploads/${newName}`;
       const fileURL = `${apiURL}${filePath}`;
 
       // Rename and move the uploaded file to the 'uploads' directory
