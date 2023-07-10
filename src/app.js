@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const mongoose = require("mongoose");
 require("dotenv/config");
+const path = require('path');
 
 const mealRouter = require("./routes/mealRoutes");
 const authRouter = require("./routes/authRoutes");
@@ -19,6 +20,7 @@ app.use(express.json());
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(cors());
 

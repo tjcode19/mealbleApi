@@ -25,8 +25,7 @@ class MealController {
   }
 
   async getByTag(req, res) {
-
-    console.log("tagbyds")
+    console.log("tagbyds");
     try {
       const page = req.query.page || 1;
       const type = req.params.tag; // Current page number
@@ -105,6 +104,23 @@ class MealController {
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
     }
+  }
+
+  async uploadFile(req, res) {
+    try {
+      const image = req.file;
+      const id = req.body.id;
+
+      if (!image) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "No file uploaded",
+        });
+      }
+
+      const cal = await this.oServices.uploadImage(id, image);
+      res.status(cal.status).json(cal.res);
+    } catch (error) {}
   }
 }
 

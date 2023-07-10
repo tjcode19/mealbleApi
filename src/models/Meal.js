@@ -24,6 +24,9 @@ const MealSchema = mongoose.Schema(
       type: Array,
       required: true,
     },
+    imageUrl: {
+      type: String,
+    },
     country: {
       type: String,
     },
