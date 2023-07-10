@@ -2,7 +2,7 @@ const MealRepository = require("../repositories/mealRepo");
 const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
-const sharp = require('sharp');
+const sharp = require("sharp");
 
 class MealService {
   constructor() {
@@ -277,13 +277,21 @@ class MealService {
   async uploadImage(id, file) {
     try {
       let errM = false;
-     
+
       const uploadDir = path.join(__dirname, "../uploads");
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir);
       }
 
       const newName = "m_" + id + path.extname(file.originalname);
+      // const newPath = path.join(__dirname, "uploads", newName);
+
+      // Create the file path based on your API URL structure
+      const apiURL = process.env.BASE_URL;
+      const filePath = `src/upload/${newName}`;
+      const fileURL = `${apiURL}${filePath}`;
+
+      // Rename and move the uploaded file to the 'uploads' directory
       const newPath = path.join(__dirname, "../uploads", newName);
 
       // Resize the image to specific dimensions
@@ -318,7 +326,6 @@ class MealService {
       // });
 
       let res;
-      
 
       if (errM) {
         res = {
@@ -329,14 +336,14 @@ class MealService {
           },
         };
       }
-      const cal = await this.repo.updateData(id, { imageUrl: newPath });
+      const cal = await this.repo.updateData(id, { imageUrl: fileURL });
 
       res = {
         status: 200,
         res: {
           code: CR.success,
           message: "Upload Successful",
-          data: cal,
+          data: fileURL,
         },
       };
       return res;
