@@ -343,7 +343,7 @@ class MealService {
         res: {
           code: CR.success,
           message: "Upload Successful",
-          data: fileURL,
+          data: newPath,
         },
       };
       return res;
