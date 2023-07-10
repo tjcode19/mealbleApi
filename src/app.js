@@ -3,7 +3,7 @@ const cors = require("cors");
 
 const mongoose = require("mongoose");
 require("dotenv/config");
-const path = require('path');
+const path = require("path");
 
 const mealRouter = require("./routes/mealRoutes");
 const authRouter = require("./routes/authRoutes");
@@ -20,10 +20,9 @@ app.use(express.json());
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(cors());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
@@ -31,8 +30,16 @@ app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/store", storeRouter);
 
-
 // app.options("*", cors());
+// app.use(express.static("./public"));
+
+// app.all("*", (req, res) => {
+//   res.status(404).json({
+//     responseCode: "01",
+//     responseMessage:
+//       "This resource you are trying to access is not available. Kindly check the url and try again",
+//   });
+// });
 
 app.use("/", (req, res) => {
   res.send("Welcome to the Mealble");
