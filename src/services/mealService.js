@@ -3,7 +3,6 @@ const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
-const fsExtra = require("fs-extra");
 
 class MealService {
   constructor() {
@@ -298,7 +297,13 @@ class MealService {
       const fileURL = `${apiURL}${filePath}`;
 
       // Rename and move the uploaded file to the 'uploads' directory
-      const newPath = path.join(__dirname, "../uploads", newName);
+      const newPath = path.join(uploadDir, newName);
+
+      // // Check if the file already exists
+      if (fs.existsSync(newPath)) {
+        // File already exists, delete it
+        fs.unlinkSync(newPath);
+      }
 
       // Resize the image to specific dimensions
       try {
@@ -311,25 +316,20 @@ class MealService {
         res.status(500).send("Error while resizing the image");
         return;
       }
-
-      // // Check if the file already exists
-      if (fs.existsSync(newPath)) {
-        // File already exists, delete it
-        fs.unlinkSync(newPath);
-      }
+      fs.unlinkSync(file.path);
       // let res;
 
       // let errM = false;
 
-      fs.rename(file.path, newPath, (err) => {
-        if (err) {
-          console.error(err);
-          errM = true;
-        } else {
-          // res.send("File uploaded successfully");
-          errM = false;
-        }
-      });
+      // fs.rename(file.path, newPath, (err) => {
+      //   if (err) {
+      //     console.error(err);
+      //     errM = true;
+      //   } else {
+      //     // res.send("File uploaded successfully");
+      //     errM = false;
+      //   }
+      // });
 
       let res;
 
