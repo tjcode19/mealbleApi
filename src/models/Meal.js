@@ -26,11 +26,12 @@ const MealSchema = mongoose.Schema(
     },
     ingredients: {
       type: Array,
-      required: true,
     },
     guides: {
       type: Array,
-      required: true,
+    },
+    tribe: {
+      type: Array,
     },
     imageUrl: {
       type: String,
