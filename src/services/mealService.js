@@ -288,13 +288,11 @@ class MealService {
 
       // return;
 
-      const newName = "m_" + id + path.extname(file.originalname);
+      const newName = "m_" + id + '.png';
       // const newPath = path.join(__dirname, "uploads", newName);
 
       // Create the file path based on your API URL structure
-      const apiURL = process.env.BASE_URL;
-      const filePath = `uploads/${newName}`;
-      const fileURL = `${apiURL}${filePath}`;
+      const filePath = `uploads/m_${id}`;
 
       // Rename and move the uploaded file to the 'uploads' directory
       const newPath = path.join(uploadDir, newName);
@@ -307,9 +305,9 @@ class MealService {
 
       // Resize the image to specific dimensions
       try {
-        console.log("Aweaa");
         await sharp(file.path)
           .resize({ width: 600, height: 400 }) // Set the desired width and height
+          .toFormat('png')
           .toFile(newPath);
       } catch (err) {
         errM = true;
