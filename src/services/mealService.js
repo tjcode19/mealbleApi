@@ -3,6 +3,7 @@ const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
 const sharp = require("sharp");
+const fsExtra = require("fs-extra");
 
 class MealService {
   constructor() {
@@ -282,6 +283,11 @@ class MealService {
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir);
       }
+
+      fsExtra.emptyDirSync(uploadDir);
+      console.log("Uploads directory contents deleted successfully");
+
+      return;
 
       const newName = "m_" + id + path.extname(file.originalname);
       // const newPath = path.join(__dirname, "uploads", newName);
