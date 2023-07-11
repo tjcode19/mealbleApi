@@ -284,10 +284,10 @@ class MealService {
         fs.mkdirSync(uploadDir);
       }
 
-      fsExtra.emptyDirSync(uploadDir);
-      console.log("Uploads directory contents deleted successfully");
+      // fsExtra.emptyDirSync(uploadDir);
+      // console.log("Uploads directory contents deleted successfully");
 
-      return;
+      // return;
 
       const newName = "m_" + id + path.extname(file.originalname);
       // const newPath = path.join(__dirname, "uploads", newName);
@@ -341,7 +341,7 @@ class MealService {
           },
         };
       }
-      const cal = await this.repo.updateData(id, { imageUrl: fileURL });
+      const cal = await this.repo.updateData(id, { imageUrl: filePath });
 
       if (cal)
         res = {
@@ -349,7 +349,7 @@ class MealService {
           res: {
             code: CR.success,
             message: "Upload Successful",
-            data: fileURL,
+            data: filePath,
           },
         };
       else
@@ -358,7 +358,6 @@ class MealService {
           res: {
             code: CR.badRequest,
             message: "Upload Failed",
-            data: fileURL,
           },
         };
       return res;
