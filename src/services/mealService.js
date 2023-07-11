@@ -302,6 +302,7 @@ class MealService {
 
       // Resize the image to specific dimensions
       try {
+        console.log("Aweaa");
         await sharp(file.path)
           .resize({ width: 600, height: 400 }) // Set the desired width and height
           .toFile(newPath);
@@ -320,15 +321,15 @@ class MealService {
 
       // let errM = false;
 
-      // fs.rename(file.path, newPath, (err) => {
-      //   if (err) {
-      //     console.error(err);
-      //     errM = true;
-      //   } else {
-      //     // res.send("File uploaded successfully");
-      //     errM = false;
-      //   }
-      // });
+      fs.rename(file.path, newPath, (err) => {
+        if (err) {
+          console.error(err);
+          errM = true;
+        } else {
+          // res.send("File uploaded successfully");
+          errM = false;
+        }
+      });
 
       let res;
 
