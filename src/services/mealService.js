@@ -300,17 +300,16 @@ class MealService {
           .resize({ width: 600, height: 400 }) // Set the desired width and height
           .toFile(newPath);
       } catch (err) {
-        // console.error("Error while resizing the image:", err);
-        res.status(500).send("Error while resizing the image");
         errM = true;
+        res.status(500).send("Error while resizing the image");
         return;
       }
 
       // // Check if the file already exists
-      // if (fs.existsSync(newPath)) {
-      //   // File already exists, delete it
-      //   fs.unlinkSync(newPath);
-      // }
+      if (fs.existsSync(newPath)) {
+        // File already exists, delete it
+        fs.unlinkSync(newPath);
+      }
       // let res;
 
       // let errM = false;
@@ -338,14 +337,24 @@ class MealService {
       }
       const cal = await this.repo.updateData(id, { imageUrl: fileURL });
 
-      res = {
-        status: 200,
-        res: {
-          code: CR.success,
-          message: "Upload Successful",
-          data: fileURL,
-        },
-      };
+      if (cal)
+        res = {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Upload Successful",
+            data: fileURL,
+          },
+        };
+      else
+        res = {
+          status: 400,
+          res: {
+            code: CR.badRequest,
+            message: "Upload Failed",
+            data: fileURL,
+          },
+        };
       return res;
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {
