@@ -24,6 +24,14 @@ const MealSchema = mongoose.Schema(
       type: Array,
       required: true,
     },
+    ingredients: {
+      type: Array,
+      required: true,
+    },
+    guides: {
+      type: Array,
+      required: true,
+    },
     imageUrl: {
       type: String,
     },
