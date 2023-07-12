@@ -275,8 +275,6 @@ class TimetableService {
     return TotalDays;
   }
 
-  // Assuming you have the necessary setup to connect to MongoDB and the Timetable model is already imported
-
   // Generate a meal timetable for the given number of days
   generateMealTimetable = async (numDays, startDate, recipes) => {
     const daysOfWeek = [
@@ -292,7 +290,6 @@ class TimetableService {
       BR: [],
       LN: [],
       DN: [],
-      SN: [],
       FR: [],
     };
 
