@@ -49,7 +49,8 @@ class TimetableService {
       const cal = await this.repo.createData(timetableData);
       if (cal) {
         // const sb = { expiryDate: endDate, sub: subId };
-        if (subId === "6482da425efe572f0274178a") {
+        const freePlanId = "6482da425efe572f0274178a";
+        if (subId === freePlanId) {
           this.uRepo.updateUser(userId, { usedFree: true });
         }
 
@@ -267,6 +268,7 @@ class TimetableService {
       LN: [],
       DN: [],
       SN: [],
+      FR: [],
     };
 
     try {
