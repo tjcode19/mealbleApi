@@ -390,7 +390,7 @@ class TimetableService {
         const currentDate = new Date(startDate);
         currentDate.setDate(currentDate.getDate() + i);
         const currentDay = daysOfWeek[currentDate.getDay()];
-        const meals = {};
+        const meals = [];
 
         let allFieldsFilled = false;
         let retryCount = 0;
