@@ -38,7 +38,11 @@ class TimetableService {
       // Step 1: Retrieve all recipes from the database
       const recipes = await this.mRepo.getAll(100, 1);
 
-      const timetable = await this.generateMealTimetable(dur, startDate, recipes);
+      const timetable = await this.generateMealTimetable(
+        dur,
+        startDate,
+        recipes
+      );
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
@@ -197,39 +201,55 @@ class TimetableService {
       }
 
       //shuffle timetable
+      const recipes = [];
 
-      // if (timetable) {
-      const a = await this.updateData(id, {
-        // timetable: timetable,
-        $set: { "subData.shuffle": cal.subData.shuffle - 1 },
-      });
-      if (!a) {
+      for (const key in cal.timetable) {
+        if (Object.hasOwnProperty.call(cal.timetable, key)) {
+          const element = cal.timetable[key];
+          element.meals.forEach((e) => {
+            recipes.push(e.meal);
+          });
+        }
+      }
+
+      const timetable = await this.generateMealTimetable(
+        cal.subData.period,
+        cal.startDate,
+        recipes
+      );
+
+      if (timetable) {
+        const a = await this.updateData(id, {
+          timetable: timetable,
+          $set: { "subData.shuffle": cal.subData.shuffle - 1 },
+        });
+        if (!a) {
+          return {
+            status: 500,
+            res: {
+              code: CR.success,
+              message: "Operation Failed",
+              // data: reshuffledTimetable,
+            },
+          };
+        }
         return {
-          status: 500,
+          status: 200,
           res: {
             code: CR.success,
-            message: "Operation Failed",
-            // data: reshuffledTimetable,
+            message: "Timetable Shuffled Successfully",
+            // data: timetable,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
           },
         };
       }
-      return {
-        status: 200,
-        res: {
-          code: CR.success,
-          message: "Timetable Shuffled Successfully",
-          // data: timetable,
-        },
-      };
-      // } else {
-      //   return {
-      //     status: 404,
-      //     res: {
-      //       code: CR.notFound,
-      //       message: "No Record Found",
-      //     },
-      //   };
-      // }
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {
         return {
