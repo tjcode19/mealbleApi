@@ -276,6 +276,85 @@ class TimetableService {
   }
 
   // Generate a meal timetable for the given number of days
+  // generateMealTimetable = async (numDays, startDate, recipes) => {
+  //   const daysOfWeek = [
+  //     "Sunday",
+  //     "Monday",
+  //     "Tuesday",
+  //     "Wednesday",
+  //     "Thursday",
+  //     "Friday",
+  //     "Saturday",
+  //   ];
+  //   const categoryMeals = {
+  //     BR: [],
+  //     LN: [],
+  //     DN: [],
+  //     FR: [],
+  //   };
+
+  //   try {
+  //     // Step 2: Sort recipes based on category
+  //     recipes.forEach((recipe) => {
+  //       recipe.category.forEach((category) => {
+  //         if (categoryMeals[category]) {
+  //           categoryMeals[category].push(recipe);
+  //         }
+  //       });
+  //     });
+
+  //     // Step 3: Plan meals for each day providing the 4 categories
+  //     const timetable = [];
+  //     const lastAssignmentMap = new Map();
+
+  //     for (let i = 0; i <= numDays; i++) {
+  //       const currentDate = new Date(startDate);
+  //       currentDate.setDate(currentDate.getDate() + i);
+  //       const currentDay = daysOfWeek[currentDate.getDay()];
+  //       const meals = [];
+
+  //       for (const category in categoryMeals) {
+  //         const availableMeals = categoryMeals[category];
+
+  //         // Filter out recipes that have been assigned within the last 4 days
+  //         const filteredMeals = availableMeals.filter((meal) => {
+  //           const lastAssignment = lastAssignmentMap.get(meal._id);
+  //           return (
+  //             !lastAssignment ||
+  //             lastAssignment <= currentDate - 4 * 24 * 60 * 60 * 1000
+  //           );
+  //         });
+
+  //         // Shuffle the filtered meals for variety
+  //         this.shuffleArray(filteredMeals);
+
+  //         // Select the first meal that meets the nutrient requirements
+  //         const selectedMeal = filteredMeals.find((meal) =>
+  //           this.meetsNutrientRequirements(meal, meals)
+  //         );
+
+  //         if (selectedMeal) {
+  //           meals.push({
+  //             date: currentDate,
+  //             category,
+  //             meal: selectedMeal,
+  //           });
+  //           lastAssignmentMap.set(selectedMeal._id, currentDate);
+  //         }
+
+  //       }
+
+  //       timetable.push({
+  //         day: currentDay,
+  //         meals,
+  //       });
+  //     }
+  //     return timetable;
+  //   } catch (error) {
+  //     console.error("Error generating meal timetable:", error);
+  //   }
+  // };
+
   generateMealTimetable = async (numDays, startDate, recipes) => {
     const daysOfWeek = [
       "Sunday",
@@ -311,36 +390,52 @@ class TimetableService {
         const currentDate = new Date(startDate);
         currentDate.setDate(currentDate.getDate() + i);
         const currentDay = daysOfWeek[currentDate.getDay()];
-        const meals = [];
+        const meals = {};
 
-        for (const category in categoryMeals) {
-          const availableMeals = categoryMeals[category];
+        let allFieldsFilled = false;
+        let retryCount = 0;
+        const maxRetries = 100;
 
-          // Filter out recipes that have been assigned within the last 4 days
-          const filteredMeals = availableMeals.filter((meal) => {
-            const lastAssignment = lastAssignmentMap.get(meal._id);
-            return (
-              !lastAssignment ||
-              lastAssignment <= currentDate - 4 * 24 * 60 * 60 * 1000
-            );
-          });
+        while (!allFieldsFilled && retryCount < maxRetries) {
+          allFieldsFilled = true;
 
-          // Shuffle the filtered meals for variety
-          this.shuffleArray(filteredMeals);
+          for (const category in categoryMeals) {
+            const availableMeals = categoryMeals[category];
 
-          // Select the first meal that meets the nutrient requirements
-          const selectedMeal = filteredMeals.find((meal) =>
-            this.meetsNutrientRequirements(meal, meals)
-          );
-
-          if (selectedMeal) {
-            meals.push({
-              date: currentDate,
-              category,
-              meal: selectedMeal,
+            // Filter out recipes that have been assigned within the last 4 days
+            const filteredMeals = availableMeals.filter((meal) => {
+              const lastAssignment = lastAssignmentMap.get(meal._id);
+              return (
+                !lastAssignment ||
+                lastAssignment <= currentDate - 4 * 24 * 60 * 60 * 1000
+              );
             });
+
+            // Shuffle the filtered meals for variety
+            this.shuffleArray(filteredMeals);
+
+            // Select the first meal that meets the nutrient requirements
+            const selectedMeal = filteredMeals.find((meal) =>
+              this.meetsNutrientRequirements(meal, meals)
+            );
+
+            if (!selectedMeal) {
+              allFieldsFilled = false;
+              break;
+            }
+
+            meals[category] = selectedMeal;
             lastAssignmentMap.set(selectedMeal._id, currentDate);
           }
+
+          retryCount++;
+        }
+
+        if (!allFieldsFilled) {
+          console.error(
+            "Unable to fill all meal fields. Insufficient meals available."
+          );
+          break;
         }
 
         timetable.push({
@@ -348,6 +443,7 @@ class TimetableService {
           meals,
         });
       }
+
       return timetable;
     } catch (error) {
       console.error("Error generating meal timetable:", error);
