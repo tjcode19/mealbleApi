@@ -19,14 +19,28 @@ class StoreService {
         const curMeal = timetable[meal];
         let a = 0;
         while (a < curMeal.meals.length) {
-          allMealInStore.push(curMeal.meals[a]);
-          if (allMealInStoreCounts.has(curMeal.meals[a])) {
+          if (allMealInStoreCounts.has(curMeal.meals[a].meal.name)) {
+            console.log("item: here did you");
+
             // Object already exists in the map, increment the count
-            const count = allMealInStoreCounts.get(curMeal.meals[a]);
-            allMealInStoreCounts.set(curMeal.meals[a], count + 1);
+            const count = allMealInStoreCounts.get(curMeal.meals[a].meal.name);
+            allMealInStoreCounts.set(curMeal.meals[a].meal.name, count + 1);
+
+            const foundMeal = allMealInStore.find(
+              (meals) => meals.mealItem.meal.name === curMeal.meals[a].meal.name
+            );
+
+            if(foundMeal){
+              foundMeal.count +=1;
+            }
+
+            console.log(allMealInStore)
+
+            
           } else {
             // Object is encountered for the first time, set count to 1
-            allMealInStoreCounts.set(curMeal.meals[a], 1);
+            allMealInStoreCounts.set(curMeal.meals[a].meal.name, 1);
+            allMealInStore.push({ mealItem: curMeal.meals[a], count:1 });
           }
           a++;
         }
@@ -34,13 +48,14 @@ class StoreService {
 
       // console.log("All Meal", allMealInStoreCounts);
 
-      const finalStore = [];
+      // const finalStore = [];
 
-      allMealInStoreCounts.forEach((count, obj) => {
-        const data = { mealItem: obj, count };
+      // allMealInStoreCounts.forEach((count, obj) => {
+      //   // console.log("item:", obj.meal.name, "count:", count);
+      //   const data = { mealItem: obj, count };
 
-        finalStore.push(data);
-      });
+      //   finalStore.push(data);
+      // });
 
       if (cal) {
         return {
@@ -48,7 +63,7 @@ class StoreService {
           res: {
             code: CR.success,
             message: "Query Successful",
-            data: finalStore,
+            data: allMealInStore,
           },
         };
       } else {
