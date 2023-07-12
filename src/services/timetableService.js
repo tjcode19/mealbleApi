@@ -35,8 +35,10 @@ class TimetableService {
           },
         };
       }
+      // Step 1: Retrieve all recipes from the database
+      const recipes = await this.mRepo.getAll(100, 1);
 
-      const timetable = await this.generateMealTimetable(dur, startDate);
+      const timetable = await this.generateMealTimetable(dur, startDate, recipes);
       const timetableData = {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
@@ -112,10 +114,13 @@ class TimetableService {
           },
         };
       }
+      // Step 1: Retrieve all recipes from the database
+      const recipes = await this.mRepo.getAll(100, 1);
 
       const timetable = await this.generateMealTimetable(
         cal.subData.period,
-        cal.startDate
+        cal.startDate,
+        recipes
       );
 
       if (timetable) {
@@ -253,7 +258,7 @@ class TimetableService {
   // Assuming you have the necessary setup to connect to MongoDB and the Timetable model is already imported
 
   // Generate a meal timetable for the given number of days
-  generateMealTimetable = async (numDays, startDate) => {
+  generateMealTimetable = async (numDays, startDate, recipes) => {
     const daysOfWeek = [
       "Sunday",
       "Monday",
@@ -272,9 +277,6 @@ class TimetableService {
     };
 
     try {
-      // Step 1: Retrieve all recipes from the database
-      const recipes = await this.mRepo.getAll(100, 1);
-
       // Step 2: Sort recipes based on category
       recipes.forEach((recipe) => {
         recipe.category.forEach((category) => {
@@ -565,8 +567,6 @@ class TimetableService {
   async mealExist(name) {
     try {
       const cal = await this.repo.getByQuery({ name: name });
-
-      console.log(cal, "here");
       if (cal) {
         return true;
       } else {
