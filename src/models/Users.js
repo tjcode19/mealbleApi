@@ -28,7 +28,7 @@ const UserSchema = mongoose.Schema(
     country: {
       type: String,
     },
-    tirbes: {
+    tribes: {
       type: Array,
       default: ["Igbo", "Hausa", "Yoruba"],
     },
