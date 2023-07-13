@@ -28,6 +28,9 @@ const UserSchema = mongoose.Schema(
     country: {
       type: String,
     },
+    tirbes: {
+      type: Array,
+    },
     usedFree: {
       type: Boolean,
     },

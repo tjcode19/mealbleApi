@@ -30,17 +30,13 @@ class StoreService {
               (meals) => meals.mealItem.meal.name === curMeal.meals[a].meal.name
             );
 
-            if(foundMeal){
-              foundMeal.count +=1;
+            if (foundMeal) {
+              foundMeal.count += 1;
             }
-
-            console.log(allMealInStore)
-
-            
           } else {
             // Object is encountered for the first time, set count to 1
             allMealInStoreCounts.set(curMeal.meals[a].meal.name, 1);
-            allMealInStore.push({ mealItem: curMeal.meals[a], count:1 });
+            allMealInStore.push({ mealItem: curMeal.meals[a], count: 1 });
           }
           a++;
         }
