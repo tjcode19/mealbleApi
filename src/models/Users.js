@@ -30,6 +30,7 @@ const UserSchema = mongoose.Schema(
     },
     tirbes: {
       type: Array,
+      default: ["Igbo", "Hausa", "Yoruba"],
     },
     usedFree: {
       type: Boolean,
