@@ -286,17 +286,25 @@ class MealService {
 
       fs.rmdir(uploadDir, (err) => {
         if (err) {
-          return res
-            .status(200)
-            .send("Uploads directory contents deleted successfully" + err);
+          return {
+            status: 500,
+            res: {
+              code: CR.badRequest,
+              message: "Error occured" + err,
+            },
+          };
         }
 
-        return res
-          .status(200)
-          .send("Uploads directory contents deleted successfully");
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Uploads directory contents deleted successfully",
+          },
+        };
       });
 
-      return;
+      // return;
 
       const newName = "m_" + id + ".png";
       // const newPath = path.join(__dirname, "uploads", newName);
