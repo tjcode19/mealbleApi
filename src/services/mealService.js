@@ -2,8 +2,9 @@ const MealRepository = require("../repositories/mealRepo");
 const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
-var cloudinary = require("cloudinary").v2;
 const sharp = require("sharp");
+const cloudinary = require("../utils/cloudinary").v2;
+const uploader = require("../utils/multer");
 
 class MealService {
   constructor() {
@@ -279,86 +280,22 @@ class MealService {
     try {
       let errM = false;
 
-      const uploadDir = path.join(__dirname, "../uploadNew");
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir);
-      }
 
-      // fs.rmdir(uploadDir, { recursive: true, force: true }, (err) => {
-      //   if (err) {
-      //     return {
-      //       status: 500,
-      //       res: {
-      //         code: CR.badRequest,
-      //         message: "Error occured" + err,
-      //       },
-      //     };
-      //   }
+      const upload = await cloudinary.uploader.upload(file.path);
 
-      //   return {
-      //     status: 200,
-      //     res: {
-      //       code: CR.success,
-      //       message: "Uploads directory contents deleted successfully",
-      //     },
-      //   };
-      // });
-
-      // return;
-
-      const newName = "m_" + id + ".png";
-      // const newPath = path.join(__dirname, "uploads", newName);
-
-      // Create the file path based on your API URL structure
-      const filePath = `uploadNew/m_${id}`;
-
-      // Rename and move the uploaded file to the 'uploads' directory
-      const newPath = path.join(uploadDir, newName);
-
-      // // Check if the file already exists
-      if (fs.existsSync(newPath)) {
-        // File already exists, delete it
-        fs.unlinkSync(newPath);
-      }
-
-      // Resize the image to specific dimensions
-      try {
-        await sharp(file.path)
-          .resize({ width: 600, height: 400 }) // Set the desired width and height
-          .toFormat("png")
-          .toFile(newPath);
-      } catch (err) {
-        errM = true;
-        res.status(500).send("Error while resizing the image");
-        return;
-      }
-      fs.unlinkSync(newPath);
-      // let res;
-
-      // let errM = false;
-
-      // fs.rename(file.path, newPath, (err) => {
-      //   if (err) {
-      //     console.error(err);
-      //     errM = true;
-      //   } else {
-      //     // res.send("File uploaded successfully");
-      //     errM = false;
-      //   }
-      // });
-
+      
       let res;
 
-      if (errM) {
+      if (!upload) {
         res = {
           status: 400,
           res: {
             code: CR.notFound,
-            message: "Error while saving the file",
+            message: "Error while uploading the file",
           },
         };
       }
-      const cal = await this.repo.updateData(id, { imageUrl: filePath });
+      const cal = await this.repo.updateData(id, { imageUrl: upload.secure_url });
 
       if (cal)
         res = {
@@ -366,7 +303,6 @@ class MealService {
           res: {
             code: CR.success,
             message: "Upload Successful",
-            data: filePath,
           },
         };
       else
@@ -390,7 +326,7 @@ class MealService {
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
-          dev: "In GetAll MealService",
+          dev: "In UploadImage MealService",
         },
       };
     }
