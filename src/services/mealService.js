@@ -2,6 +2,7 @@ const MealRepository = require("../repositories/mealRepo");
 const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
+var cloudinary = require('cloudinary').v2;
 const sharp = require("sharp");
 
 class MealService {
@@ -283,10 +284,10 @@ class MealService {
         fs.mkdirSync(uploadDir);
       }
 
-      // fsExtra.emptyDirSync(uploadDir);
-      // console.log("Uploads directory contents deleted successfully");
+      fsExtra.emptyDirSync(uploadDir);
+      console.log("Uploads directory contents deleted successfully");
 
-      // return;
+      return;
 
       const newName = "m_" + id + '.png';
       // const newPath = path.join(__dirname, "uploads", newName);

@@ -30,7 +30,7 @@ const UserSchema = mongoose.Schema(
     },
     tribes: {
       type: Array,
-      default: ["Igbo", "Hausa", "Yoruba"],
+      default: ["Hausa", "Igbo", "Yoruba"],
     },
     usedFree: {
       type: Boolean,
