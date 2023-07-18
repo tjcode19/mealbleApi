@@ -9,7 +9,7 @@ class MealController {
   async getAll(req, res) {
     try {
       const page = req.query.page || 1;
-      const limit = req.query.limit || 10; // Number of items per page
+      const limit = req.query.limit || 100; // Number of items per page
       const offset = (page - 1) * limit; // Offset to skip the required number of items
 
       const curs = await this.oServices.getAll(limit, offset);
