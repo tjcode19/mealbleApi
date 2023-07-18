@@ -304,7 +304,7 @@ class MealService {
         };
       });
 
-      // return;
+      return;
 
       const newName = "m_" + id + ".png";
       // const newPath = path.join(__dirname, "uploads", newName);
