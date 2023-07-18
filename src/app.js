@@ -22,7 +22,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploadNew")));
 app.use("/meal", mealRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);

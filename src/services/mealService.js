@@ -279,7 +279,7 @@ class MealService {
     try {
       let errM = false;
 
-      const uploadDir = path.join(__dirname, "../uploads");
+      const uploadDir = path.join(__dirname, "../uploadNew");
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir);
       }
@@ -310,7 +310,7 @@ class MealService {
       // const newPath = path.join(__dirname, "uploads", newName);
 
       // Create the file path based on your API URL structure
-      const filePath = `uploads/m_${id}`;
+      const filePath = `uploadNew/m_${id}`;
 
       // Rename and move the uploaded file to the 'uploads' directory
       const newPath = path.join(uploadDir, newName);
@@ -332,7 +332,7 @@ class MealService {
         res.status(500).send("Error while resizing the image");
         return;
       }
-      fs.unlinkSync(file.path);
+      fs.unlinkSync(newPath);
       // let res;
 
       // let errM = false;

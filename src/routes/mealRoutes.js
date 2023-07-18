@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const MealController = require("../controller/mealController");
 const multer = require('multer');
-const upload = multer({ dest: '../uploads/' });
+const upload = multer({ dest: '../uploadNew/' });
 // const { isAdmin, authenticate } = require("../middleware/auth");
 
 const controller = new MealController();
