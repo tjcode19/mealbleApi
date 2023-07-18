@@ -2,7 +2,7 @@ const MealRepository = require("../repositories/mealRepo");
 const CR = require("../utils/customResponses");
 const path = require("path");
 const fs = require("fs");
-var cloudinary = require('cloudinary').v2;
+var cloudinary = require("cloudinary").v2;
 const sharp = require("sharp");
 
 class MealService {
@@ -284,12 +284,21 @@ class MealService {
         fs.mkdirSync(uploadDir);
       }
 
-      fs.emptyDirSync(uploadDir);
-      console.log("Uploads directory contents deleted successfully");
+      fs.rmdir(uploadDir, (err) => {
+        if (err) {
+          return res
+            .status(200)
+            .send("Uploads directory contents deleted successfully" + err);
+        }
 
-      return res.status(200).send("Uploads directory contents deleted successfully");
+        return res
+          .status(200)
+          .send("Uploads directory contents deleted successfully");
+      });
 
-      const newName = "m_" + id + '.png';
+      return;
+
+      const newName = "m_" + id + ".png";
       // const newPath = path.join(__dirname, "uploads", newName);
 
       // Create the file path based on your API URL structure
@@ -308,7 +317,7 @@ class MealService {
       try {
         await sharp(file.path)
           .resize({ width: 600, height: 400 }) // Set the desired width and height
-          .toFormat('png')
+          .toFormat("png")
           .toFile(newPath);
       } catch (err) {
         errM = true;
