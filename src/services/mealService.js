@@ -284,10 +284,10 @@ class MealService {
         fs.mkdirSync(uploadDir);
       }
 
-      fsExtra.emptyDirSync(uploadDir);
+      fs.emptyDirSync(uploadDir);
       console.log("Uploads directory contents deleted successfully");
 
-      return;
+      return res.status(200).send("Uploads directory contents deleted successfully");
 
       const newName = "m_" + id + '.png';
       // const newPath = path.join(__dirname, "uploads", newName);
