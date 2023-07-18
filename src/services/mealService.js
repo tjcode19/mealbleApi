@@ -284,7 +284,7 @@ class MealService {
         fs.mkdirSync(uploadDir);
       }
 
-      fs.rmdir(uploadDir, (err) => {
+      fs.rmdir(uploadDir, { recursive: true, force: true }, (err) => {
         if (err) {
           return {
             status: 500,
