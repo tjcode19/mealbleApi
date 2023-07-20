@@ -6,9 +6,59 @@ const sharp = require("sharp");
 const cloudinary = require("../utils/cloudinary").v2;
 const uploader = require("../utils/multer");
 
+const admin = require("firebase-admin");
+
+// Initialize Firebase Admin SDK
+const serviceAccount = require("../utils/mealble-firebase-adminsdk-34mil-05284418f5.json"); // Replace with the path to your serviceAccountKey.json file
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 class MealService {
   constructor() {
-    this.repo = new MealRepository();
+    this.repo = new NotificationRepository();
+  }
+
+  async sendPushNotification(token, topic, title, body, data) {
+    let message;
+
+    if (token === null || token === "") {
+      message = {
+        topic: topic,
+        notification: {
+          title: title,
+          body: body,
+        },
+        data: data,
+      };
+    } else {
+      message = {
+        token: token,
+        notification: {
+          title: title,
+          body: body,
+        },
+        data: data,
+      };
+    }
+
+    console.log(message);
+
+    try {
+      const response = await admin.messaging().send(message);
+      console.log("Successfully sent notification:", response);
+
+      return {
+        status: 200,
+        res: {
+          code: CR.success,
+          message: "Successfully sent notification",
+        },
+      };
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      throw error;
+    }
   }
 
   async createData(data) {
@@ -170,8 +220,6 @@ class MealService {
     }
   }
 
-  
-
   async deleteData(id) {
     try {
       const cal = await this.repo.deleteData(id);
@@ -215,10 +263,8 @@ class MealService {
     try {
       let errM = false;
 
-
       const upload = await cloudinary.uploader.upload(file.path);
 
-      
       let res;
 
       if (!upload) {
@@ -230,7 +276,9 @@ class MealService {
           },
         };
       }
-      const cal = await this.repo.updateData(id, { imageUrl: upload.secure_url });
+      const cal = await this.repo.updateData(id, {
+        imageUrl: upload.secure_url,
+      });
 
       if (cal)
         res = {

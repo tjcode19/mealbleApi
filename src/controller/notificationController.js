@@ -1,9 +1,9 @@
-const MealService = require("../services/mealService");
+const NotificationService = require("../services/notificationService");
 const CR = require("../utils/customResponses");
 
 class NotificationController {
   constructor() {
-    this.oServices = new MealService();
+    this.oServices = new NotificationService();
   }
 
   async getAll(req, res) {
@@ -53,36 +53,31 @@ class NotificationController {
     }
   }
 
-  async create(req, res) {
+  async sendMessage(req, res) {
     const data = req.body;
 
     try {
-      if (data.name == null || data.name === "") {
+      if (data.title == null || data.title === "") {
         return res.status(400).json({
           code: CR.badRequest,
-          message: "Name field is required",
+          message: "Title field is required",
         });
       }
 
-      if (data.category == null || data.category.length === 0) {
+      if (data.body == null || data.body === 0) {
         return res.status(400).json({
           code: CR.badRequest,
-          message: "Select one or more category",
-        });
-      }
-      const name = data.name.toLowerCase();
-      const str = name.charAt(0).toUpperCase() + name.slice(1);
-
-      const existM = await this.oServices.mealExist(str);
-      if (existM) {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Meal Already Exist",
+          message: "Body field is required",
         });
       }
 
-      data.name = str;
-      const cal = await this.oServices.createData(data);
+      const cal = await this.oServices.sendPushNotification(
+        data.token,
+        data.topic,
+        data.title,
+        data.body,
+        { name: data.name }
+      );
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });

@@ -1,41 +1,41 @@
-const Notification = require("../models/Notification");
+const Notification = require("../models/notifications");
 
 class NotificationRepository {
   async createData(data) {
-    return await Meal.create(data);
+    return await Notification.create(data);
   }
 
   async getAll(limit, offset) {
-    return await Meal.find().lean().sort({ _id: -1 }).skip(offset).limit(limit);
+    return await Notification.find().lean().sort({ _id: -1 }).skip(offset).limit(limit);
   }
 
-  async getById(id) {
-    return await Meal.findById(id);
-  }
+  // async getById(id) {
+  //   return await Meal.findById(id);
+  // }
 
-  async getByTag(limit, offset, type) {
-    try {
-      return await Meal.find({ category: type }).lean().sort({ _id: -1 }).skip(offset).limit(limit);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async getByTag(limit, offset, type) {
+  //   try {
+  //     return await Meal.find({ category: type }).lean().sort({ _id: -1 }).skip(offset).limit(limit);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  async getByQuery(q) {
-    try {
-      return await Meal.findOne(q);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async getByQuery(q) {
+  //   try {
+  //     return await Meal.findOne(q);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  async updateData(id, data) {
-    return await Meal.findByIdAndUpdate(id, data, { new: true });
-  }
+  // async updateData(id, data) {
+  //   return await Meal.findByIdAndUpdate(id, data, { new: true });
+  // }
 
-  async deleteData(id) {
-    return await Meal.findByIdAndDelete(id);
-  }
+  // async deleteData(id) {
+  //   return await Meal.findByIdAndDelete(id);
+  // }
 }
 
 module.exports = NotificationRepository;
