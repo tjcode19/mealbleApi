@@ -81,8 +81,10 @@ class AuthService {
             status: 200,
             res: {
               code: CR.success,
-              otp: sendOtp.res.data.otp,
-              userId: sendOtp.res.data.userId,
+              data: {
+                otp: sendOtp.res.data.otp,
+                userId: sendOtp.res.data.userId,
+              },
               message:
                 "You are yet to verify email, an otp has been sent to your email",
             },
