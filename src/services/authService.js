@@ -84,6 +84,7 @@ class AuthService {
               data: {
                 otp: sendOtp.res.data.otp,
                 userId: sendOtp.res.data.userId,
+                email: email
               },
               message:
                 "You are yet to verify email, an otp has been sent to your email",
