@@ -15,6 +15,8 @@ const SubscriptionSchema = mongoose.Schema(
           duration: Number,
           price: Number,
           shuffle: Number,
+          playId: String,
+          appleId: String,
           regenerate: Number,
         },
         month: {
@@ -22,6 +24,8 @@ const SubscriptionSchema = mongoose.Schema(
           duration: Number,
           price: Number,
           shuffle: Number,
+          playId: String,
+          appleId: String,
           regenerate: Number,
         },
       },

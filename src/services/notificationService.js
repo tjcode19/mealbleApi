@@ -42,7 +42,7 @@ class MealService {
       };
     }
 
-    console.log(message);
+    // console.log(message);
 
     try {
       const response = await admin.messaging().send(message);
