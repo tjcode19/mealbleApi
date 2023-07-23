@@ -86,6 +86,33 @@ class SubscriptionController {
     }
   }
 
+  async verifyPurchase(req, res) {
+    const {productId, purchaseToken} = req.body;
+
+    try {
+      if (productId == null || productId === "") {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Product Id is required",
+        });
+      }
+
+      if (purchaseToken == null || purchaseToken === "") {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Purchase Token is required",
+        });
+      }
+
+      
+
+      const cal = await this.oServices.verifyPurchase(productId, purchaseToken);
+      res.status(cal.status).json(cal.res);
+    } catch (error) {
+      res.status(500).json({ code: CR.serverError, message: error.message });
+    }
+  }
+
   async update(req, res) {
     try {
       const cal = await this.oServices.updateData(req.params.id, req.body);

@@ -1,11 +1,48 @@
 const SubscriptionRepository = require("../repositories/subscriptionRepo");
 const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
+const { google } = require('googleapis');
 
 class SubscriptionService {
   constructor() {
     this.repo = new SubscriptionRepository();
     this.userRepo = new UserRepository();
+  }
+
+  async buySub(){
+
+  }
+
+  async verifyPurchase({productId, purchaseToken}){
+    const jwtClient = new google.auth.JWT({
+      email: process.env.CLIENT_EMAIL,
+      key: process.env.PRIVATE_KEY,
+      scopes: ['https://www.googleapis.com/auth/androidpublisher'],
+    });
+  
+    try {
+      await jwtClient.authorize();
+      const androidPublisher = google.androidpublisher({
+        version: 'v3',
+        auth: jwtClient,
+      });
+  
+      const packageName = 'com.bolxtine.mealble'; // Replace with your app's package name
+      // const productId = 'your_product_id'; // Replace with your in-app product ID
+  
+      const result = await androidPublisher.purchases.products.get({
+        packageName,
+        productId,
+        token: purchaseToken,
+      });
+  
+      console.log('Verification Result:', result.data);
+      return result.data;
+    } catch (err) {
+      console.error('Error verifying purchase:', err);
+      throw err;
+    }
+
   }
 
   async createData(data) {
