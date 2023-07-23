@@ -5,5 +5,6 @@ module.exports = {
   notFound: "044",
   unathorised: "041",
   success: "000",
+  successBut: "003",
   accepted: "001",
 };

@@ -80,7 +80,7 @@ class AuthService {
           return {
             status: 200,
             res: {
-              code: CR.success,
+              code: CR.successBut,
               data: {
                 otp: sendOtp.res.data.otp,
                 userId: sendOtp.res.data.userId,
