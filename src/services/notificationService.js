@@ -13,7 +13,7 @@ const admin = require("firebase-admin");
 
 const serviceAccount = require("../../mealble-firebase-adminsdk-34mil-05284418f5.json"); // Replace with the path to your serviceAccountKey.json file
 admin.initializeApp({
-  credential: admin.credential.cert(JSON.parse(serviceAccount)),
+  credential: admin.credential.cert(serviceAccount),
 });
 
 
