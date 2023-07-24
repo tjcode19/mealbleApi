@@ -146,10 +146,6 @@ class AuthService {
 
         this.notiService.sendEmail(email, "Verification Code", html);
 
-        console.log(email, "why");
-
-        //To be implemented
-
         if (updateUser) {
           return {
             status: 200,
