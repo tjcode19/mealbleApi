@@ -165,9 +165,8 @@ class MealService {
           return {
             status: 500,
             res: {
-              code: CR.success,
+              code: CR.badRequest,
               message: "Error Occured",
-              // data: cal,
             },
           };
         } else {
@@ -176,7 +175,6 @@ class MealService {
             res: {
               code: CR.success,
               message: "Email Sent Successful",
-              // data: cal,
             },
           };
         }
