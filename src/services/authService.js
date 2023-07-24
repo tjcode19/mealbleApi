@@ -144,7 +144,7 @@ class AuthService {
           html = htm;
         });
 
-        this.notiService.sendEmail(email, "Email Verification", html);
+        this.notiService.sendEmail(email, "Verification Code", html);
 
         //To be implemented
 

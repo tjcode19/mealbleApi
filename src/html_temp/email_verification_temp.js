@@ -116,7 +116,7 @@ const verifyEmailTemp = (data) => {
     <div class="email-container">
         <div class="header">
             <img class="logo" src="https://res.cloudinary.com/db1ipfcji/image/upload/v1690208012/5_vv7cjc.png" alt="Mealble Logo">
-            <h1>Email Verification</h1>
+            <h1>Verification Code</h1>
         </div>
         <div class="verification-code">
             <p>Here's your verification code:</p>
@@ -125,7 +125,7 @@ const verifyEmailTemp = (data) => {
       
         <div class="footer">
             <p>We are glad to welcome you to Mealble Fam.</p>
-            <p>Best regards,<br>from Mealble Team</p>
+            <p>Best regards,<br><i>Mealble Team<i></p>
         </div>
     </div>
 </body>
