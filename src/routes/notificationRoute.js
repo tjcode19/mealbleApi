@@ -6,6 +6,7 @@ const NotificationController = require("../controller/notificationController");
 const controller = new NotificationController();
 
 /* GET users listing. */
+router.route("/send-email").post(controller.sendEmail.bind(controller));
 router.route("/").post(controller.sendMessage.bind(controller));
 router.route("/:id").patch(controller.update.bind(controller));
 router.route("/:id").delete(controller.delete.bind(controller));

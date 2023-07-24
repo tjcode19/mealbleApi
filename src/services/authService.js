@@ -4,6 +4,12 @@ const UserService = require("../services/userService");
 const CommonService = require("../services/commonService");
 const bcrypt = require("bcrypt");
 
+const NotificationService = require("../services/notificationService");
+var inlineCss = require("inline-css");
+const {
+  verifyEmailTemp,
+} = require("../html_temp/email_verification_temp");
+
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 
@@ -13,6 +19,7 @@ class AuthService {
     this.timetableRepo = new TimetableRepository();
     this.userService = new UserService();
     this.commonService = new CommonService();
+    this.notiService = new NotificationService();
   }
 
   async createAuth(userData) {
@@ -130,6 +137,15 @@ class AuthService {
         });
 
         //Send otp to email
+        //Send an email to be implemented
+        var html = verifyEmailTemp({ otp: otp });
+
+        inlineCss(html, { url: "fake" }).then(function (htm) {
+          html = htm;
+        });
+
+        this.notiService.sendEmail(email, "Email Verification", html);
+
         //To be implemented
 
         if (updateUser) {
@@ -139,7 +155,6 @@ class AuthService {
               code: CR.success,
               message: "OTP Sent Successfully",
               data: {
-                otp: otp,
                 userId: userExist._id,
               },
             },

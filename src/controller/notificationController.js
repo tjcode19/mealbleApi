@@ -84,6 +84,31 @@ class NotificationController {
     }
   }
 
+  async sendEmail(req, res) {
+    const data = req.body;
+
+    try {
+      // if (data.title == null || data.title === "") {
+      //   return res.status(400).json({
+      //     code: CR.badRequest,
+      //     message: "Title field is required",
+      //   });
+      // }
+
+      // if (data.body == null || data.body === 0) {
+      //   return res.status(400).json({
+      //     code: CR.badRequest,
+      //     message: "Body field is required",
+      //   });
+      // }
+
+      const cal = await this.oServices.sendEmail();
+      res.status(cal.status).json(cal.res);
+    } catch (error) {
+      res.status(500).json({ code: CR.serverError, message: error.message });
+    }
+  }
+
   async update(req, res) {
     try {
       const cal = await this.oServices.updateData(req.params.id, req.body);

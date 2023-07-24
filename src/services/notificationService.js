@@ -1,13 +1,8 @@
 const NotificationRepository = require("../repositories/notificationRepo");
 const CR = require("../utils/customResponses");
-const path = require("path");
-const fs = require("fs");
-const sharp = require("sharp");
-const cloudinary = require("../utils/cloudinary").v2;
-const uploader = require("../utils/multer");
 require("dotenv/config");
-
 const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
 
 // Initialize Firebase Admin SDK
 
@@ -15,7 +10,6 @@ const serviceAccount = require("../../mealble-firebase-adminsdk-34mil-05284418f5
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-
 
 class MealService {
   constructor() {
@@ -144,67 +138,53 @@ class MealService {
     }
   }
 
-  async getByTag(limit, offset, type) {
+  async sendEmail(to, subject, htmlBody) {
     try {
-      const cal = await this.repo.getByTag(limit, offset, type);
-      if (cal) {
-        return {
-          status: 200,
-          res: {
-            code: CR.success,
-            message: "Query Successful",
-            data: cal,
-          },
-        };
-      } else {
-        return {
-          status: 404,
-          res: {
-            code: CR.notFound,
-            message: "No Record Found",
-          },
-        };
-      }
-    } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return {
-          status: 500,
-          res: { code: CR.serverError, message: "Database connection error" },
-        };
-      }
-
-      return {
-        status: 500,
-        res: {
-          code: CR.serverError,
-          message: "Internal server error:" + error,
-          dev: "In GetByTag MealService",
+      // Create a Nodemailer transporter using SMTP
+      const transporter = nodemailer.createTransport({
+        host: "smtp.zoho.com", // Replace with your SMTP server details
+        port: 465, // Replace with the desired port number (e.g., 587 for TLS, 465 for SSL)
+        secure: true, // Set to true if you're using port 465 with SSL
+        auth: {
+          user: "info@bolxtine.com",
+          pass: process.env.EMAIL_PASS,
         },
-      };
-    }
-  }
+      });
 
-  async getById(id) {
-    try {
-      const cal = await this.repo.getById(id);
-      if (cal) {
-        return {
-          status: 200,
-          res: {
-            code: CR.success,
-            message: "Query Successful",
-            data: cal,
-          },
-        };
-      } else {
-        return {
-          status: 404,
-          res: {
-            code: CR.notFound,
-            message: "No Record Found",
-          },
-        };
-      }
+      // Email options
+      const mailOptions = {
+        from: "Mealble <info@bolxtine.com>", // Replace with the sender email address
+        to,
+        subject,
+        html: htmlBody,
+      };
+
+      // Send the email
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return {
+            status: 500,
+            res: {
+              code: CR.success,
+              message: "Error Occured",
+              // data: cal,
+            },
+          };
+        } else {
+          
+          return {
+            status: 200,
+            res: {
+              code: CR.success,
+              message: "Email Sent Successful",
+              // data: cal,
+            },
+          };
+        }
+      });
+
+      // .then((msg) => console.log(msg)) // logs response data
+      // .catch((err) => console.log(err)); // logs any error
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {
         return {
@@ -212,107 +192,13 @@ class MealService {
           res: { code: CR.serverError, message: "Database connection error" },
         };
       }
-      return {
-        status: 500,
-        res: {
-          code: CR.serverError,
-          message: "Internal server error:" + error,
-          dev: "In Get BY ID MealService",
-        },
-      };
-    }
-  }
 
-  async deleteData(id) {
-    try {
-      const cal = await this.repo.deleteData(id);
-      if (cal) {
-        return {
-          status: 200,
-          res: {
-            code: CR.success,
-            message: "Delete Successful",
-            data: cal,
-          },
-        };
-      } else {
-        return {
-          status: 404,
-          res: {
-            code: CR.notFound,
-            message: "No Record Found",
-          },
-        };
-      }
-    } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return {
-          status: 500,
-          res: { code: CR.serverError, message: "Database connection error" },
-        };
-      }
       return {
         status: 500,
         res: {
           code: CR.serverError,
           message: "Internal server error:" + error,
           dev: "In GetAll MealService",
-        },
-      };
-    }
-  }
-
-  async uploadImage(id, file) {
-    try {
-      let errM = false;
-
-      const upload = await cloudinary.uploader.upload(file.path);
-
-      let res;
-
-      if (!upload) {
-        res = {
-          status: 400,
-          res: {
-            code: CR.notFound,
-            message: "Error while uploading the file",
-          },
-        };
-      }
-      const cal = await this.repo.updateData(id, {
-        imageUrl: upload.secure_url,
-      });
-
-      if (cal)
-        res = {
-          status: 200,
-          res: {
-            code: CR.success,
-            message: "Upload Successful",
-          },
-        };
-      else
-        res = {
-          status: 400,
-          res: {
-            code: CR.badRequest,
-            message: "Upload Failed",
-          },
-        };
-      return res;
-    } catch (error) {
-      if (String(error).includes("MongoNotConnectedError")) {
-        return {
-          status: 500,
-          res: { code: CR.serverError, message: "Database connection error" },
-        };
-      }
-      return {
-        status: 500,
-        res: {
-          code: CR.serverError,
-          message: "Internal server error:" + error,
-          dev: "In UploadImage MealService",
         },
       };
     }

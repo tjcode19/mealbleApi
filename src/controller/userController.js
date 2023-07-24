@@ -2,20 +2,24 @@
 
 const UserService = require("../services/userService");
 const AuthService = require("../services/authService");
+const NotificationService = require("../services/notificationService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
+var inlineCss = require("inline-css");
+const {
+  verifyEmailTemp,
+} = require("../html_temp/email_verification_temp");
 
 class UserController {
   constructor() {
     this.userService = new UserService();
     this.authService = new AuthService();
+    this.notiService = new NotificationService();
   }
 
   async createUser(req, res) {
     try {
       const userData = req.body;
-
-      console.log(req);
 
       // Input validation in the controller
       if (!userData.email) {
@@ -36,7 +40,7 @@ class UserController {
 
       // Check if the user already exists
       const otp = CU.generateOTP(6);
-      userData.otp = "000000"; //otp;
+      userData.otp = otp; //otp;
       const userExists = await this.userService.checkUserExists(userData.email);
       if (userExists) {
         return res
@@ -44,9 +48,17 @@ class UserController {
           .json({ code: CR.existingData, message: "User already exists" });
       }
 
-      const newUser = await this.userService.createUser(userData);
+      const newUser =  await this.userService.createUser(userData);
       if (newUser) {
         //Send an email to be implemented
+        var html = verifyEmailTemp({ otp: otp });
+
+        inlineCss(html, { url: "fake" }).then(function (htm) {
+          html = htm;
+        });
+
+        this.notiService.sendEmail(userData.email, "Email Verification", html);
+
         res.status(201).json({
           code: CR.accepted,
           message: "Request Successful",
@@ -56,7 +68,6 @@ class UserController {
         res.status(500).json({
           code: CR.serverError,
           message: "Request Failed",
-          data: newUser,
         });
       }
     } catch (error) {
@@ -67,7 +78,10 @@ class UserController {
       }
       res
         .status(500)
-        .json({ code: CR.serverError, message: "Internal server error" });
+        .json({
+          code: CR.serverError,
+          message: "Internal server error UserController " + error,
+        });
     }
   }
 
