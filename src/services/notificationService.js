@@ -5,14 +5,17 @@ const fs = require("fs");
 const sharp = require("sharp");
 const cloudinary = require("../utils/cloudinary").v2;
 const uploader = require("../utils/multer");
+require("dotenv/config");
 
 const admin = require("firebase-admin");
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require("../utils/mealble-firebase-adminsdk-34mil-05284418f5.json"); // Replace with the path to your serviceAccountKey.json file
+
+const serviceAccount = require("../../mealble-firebase-adminsdk-34mil-05284418f5.json"); // Replace with the path to your serviceAccountKey.json file
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(JSON.parse(serviceAccount)),
 });
+
 
 class MealService {
   constructor() {
