@@ -6,9 +6,7 @@ const bcrypt = require("bcrypt");
 
 const NotificationService = require("../services/notificationService");
 var inlineCss = require("inline-css");
-const {
-  verifyEmailTemp,
-} = require("../html_temp/email_verification_temp");
+const { verifyEmailTemp } = require("../html_temp/email_verification_temp");
 
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
@@ -83,6 +81,8 @@ class AuthService {
         }
         const sendOtp = await this.sendOtp(email);
 
+        console.log(sendOtp);
+
         if (sendOtp.status === 200) {
           return {
             status: 200,
@@ -91,7 +91,7 @@ class AuthService {
               data: {
                 otp: sendOtp.res.data.otp,
                 userId: sendOtp.res.data.userId,
-                email: email
+                email: email,
               },
               message:
                 "You are yet to verify email, an otp has been sent to your email",
