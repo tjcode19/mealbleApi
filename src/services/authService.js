@@ -81,7 +81,7 @@ class AuthService {
         }
         const sendOtp = await this.sendOtp(email);
 
-        console.log(sendOtp);
+       
 
         if (sendOtp.status === 200) {
           return {
@@ -145,6 +145,8 @@ class AuthService {
         });
 
         this.notiService.sendEmail(email, "Verification Code", html);
+
+        console.log(email, "why");
 
         //To be implemented
 
