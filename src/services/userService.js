@@ -99,7 +99,7 @@ class UserService {
             status: 201,
             res: {
               code: CR.accepted,
-              message: "Email Verification Successful",
+              message: "Verification Successful",
               data: {
                 token: t.token,
                 tokenExp: t.expirationDate,
@@ -123,7 +123,7 @@ class UserService {
           status: 400,
           res: {
             code: CR.badRequest,
-            message: "Invalid OTP",
+            message: "Invalid Verification Code",
           },
         };
       }
