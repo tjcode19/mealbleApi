@@ -162,8 +162,6 @@ class MealService {
       // Send the email
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-
-          console.log(error, "inside transporter")
           return {
             status: 500,
             res: {
@@ -173,8 +171,6 @@ class MealService {
             },
           };
         } else {
-          console.log(info, "inside transporter")
-          
           return {
             status: 200,
             res: {
