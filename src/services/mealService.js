@@ -198,16 +198,34 @@ class MealService {
 
   async mealSearch(name) {
     try {
-      const cal = await this.repo.getByQuery({
+      const lowerCaseName = name.toLowerCase();
+      const nameRegex = new RegExp(lowerCaseName, "i");
+
+      const cal = await this.repo.getByQuery2({
         $or: [
-          { name: name }, // Search by name
-          { extra: { $in: [name] } }, // Check if the "extra" array contains the name provided
+          { name: nameRegex }, // Search by name
+          { extra: { $regex: nameRegex } }, // Check if the "extra" array contains the name provided
         ],
       });
+
+      console.log(cal);
       if (cal) {
-        return true;
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
+            data: cal,
+          },
+        };
       } else {
-        return false;
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "No Record Found",
+          },
+        };
       }
     } catch (error) {
       if (String(error).includes("MongoNotConnectedError")) {

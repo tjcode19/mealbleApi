@@ -29,6 +29,14 @@ class MealRepository {
     }
   }
 
+  async getByQuery2(q) {
+    try {
+      return await Meal.find(q);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async updateData(id, data) {
     return await Meal.findByIdAndUpdate(id, data, { new: true });
   }
