@@ -25,7 +25,6 @@ class MealController {
   }
 
   async getByTag(req, res) {
-    console.log("tagbyds");
     try {
       const page = req.query.page || 1;
       const type = req.params.tag; // Current page number
@@ -40,6 +39,22 @@ class MealController {
         code: CR.serverError,
         message: error,
         dev: "getByTag Controller",
+      });
+    }
+  }
+
+  async searchByName(req, res) {
+    try {
+      const name = req.params.name; // Current page number
+
+      const curs = await this.oServices.mealSearch(name);
+      res.status(curs.status).json(curs.res);
+    } catch (error) {
+      console.log(error);
+      res.json({
+        code: CR.serverError,
+        message: error,
+        dev: "searchByName Meal Controller",
       });
     }
   }

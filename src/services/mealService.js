@@ -173,8 +173,37 @@ class MealService {
   async mealExist(name) {
     try {
       const cal = await this.repo.getByQuery({ name: name });
+      if (cal) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In GetAll MealService",
+        },
+      };
+    }
+  }
 
-      console.log(cal, "here");
+  async mealSearch(name) {
+    try {
+      const cal = await this.repo.getByQuery({
+        $or: [
+          { name: name }, // Search by name
+          { extra: { $in: [name] } }, // Check if the "extra" array contains the name provided
+        ],
+      });
       if (cal) {
         return true;
       } else {
@@ -280,10 +309,8 @@ class MealService {
     try {
       let errM = false;
 
-
       const upload = await cloudinary.uploader.upload(file.path);
 
-      
       let res;
 
       if (!upload) {
@@ -295,7 +322,9 @@ class MealService {
           },
         };
       }
-      const cal = await this.repo.updateData(id, { imageUrl: upload.secure_url });
+      const cal = await this.repo.updateData(id, {
+        imageUrl: upload.secure_url,
+      });
 
       if (cal)
         res = {
