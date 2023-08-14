@@ -92,7 +92,7 @@ class SubscriptionService {
       let c ;
 
       if (cal) {
-        // c = cal;
+        c = cal;
         // if (user.usedFree) {
         //   c = cal.slice(1);
         // }
