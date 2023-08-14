@@ -92,10 +92,10 @@ class SubscriptionService {
       let c ;
 
       if (cal) {
-        c = cal;
-        if (user.usedFree) {
-          c = cal.slice(1);
-        }
+        // c = cal;
+        // if (user.usedFree) {
+        //   c = cal.slice(1);
+        // }
         return {
           status: 200,
           res: {

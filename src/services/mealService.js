@@ -208,7 +208,6 @@ class MealService {
         ],
       });
 
-      console.log(cal);
       if (cal) {
         return {
           status: 200,
