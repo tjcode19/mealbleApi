@@ -1,18 +1,15 @@
 const MealRepository = require("../repositories/mealRepo");
 const TimetableRepository = require("../repositories/timetableRepo");
 const UserRepository = require("../repositories/userRepo");
-const SchedulerService = require("../services/schedulerService");
+const Scheduler = require("../services/schedulerService")
 const CR = require("../utils/customResponses");
-const CU = require("../utils/utils");
-
-const mealService = require("../services/mealService");
 
 class TimetableService {
   constructor() {
-    this.scheduler = new SchedulerService();
     this.repo = new TimetableRepository();
     this.mRepo = new MealRepository();
     this.uRepo = new UserRepository();
+    this.scheduler = new Scheduler()
     this.lastAssignedDays;
   }
 
@@ -23,12 +20,7 @@ class TimetableService {
       const dur = duration || 3;
       endDate.setDate(startDate.getDate() + parseInt(dur));
 
-      const how = await this.scheduler.checkSubscriptionStatus();
-
-      console.log(how);
-      const repo1 = new TimetableRepository();
-
-      const tTable = await repo1.getByQuery({
+      const tTable = await this.repo.getByQuery({
         owner: userId,
         active: true,
       });
@@ -512,6 +504,7 @@ class TimetableService {
 
   async getUserRecords(q) {
     try {
+      await this.scheduler.checkSubscriptionStatus();
       const cal = await this.repo.getByQuery(q);
       if (cal) {
         return {
