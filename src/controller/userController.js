@@ -194,8 +194,7 @@ class UserController {
       const userId = req.params.id;
       const deletedUser = await this.userService.deleteUser(userId);
 
-      console.log(deletedUser);
-
+  
       if (deletedUser) {
         res
           .status(200)
