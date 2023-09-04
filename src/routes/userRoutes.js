@@ -14,8 +14,8 @@ router
   .route("/")
   .patch(authenticate, userController.updateUser.bind(userController));
 router
-  .route("/:id")
-  .delete(isAdmin, userController.deleteUser.bind(userController));
+  .route("/")
+  .delete(authenticate, userController.deleteUser.bind(userController));
 router.route("/").get(userController.getAllUsers.bind(userController));
 
 module.exports = router;
