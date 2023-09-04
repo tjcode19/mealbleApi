@@ -6,9 +6,7 @@ const NotificationService = require("../services/notificationService");
 const CR = require("../utils/customResponses");
 const CU = require("../utils/utils");
 var inlineCss = require("inline-css");
-const {
-  verifyEmailTemp,
-} = require("../html_temp/email_verification_temp");
+const { verifyEmailTemp } = require("../html_temp/email_verification_temp");
 
 class UserController {
   constructor() {
@@ -48,7 +46,7 @@ class UserController {
           .json({ code: CR.existingData, message: "User already exists" });
       }
 
-      const newUser =  await this.userService.createUser(userData);
+      const newUser = await this.userService.createUser(userData);
       if (newUser) {
         //Send an email to be implemented
         var html = verifyEmailTemp({ otp: otp });
@@ -76,12 +74,10 @@ class UserController {
           .status(500)
           .json({ code: CR.serverError, message: "Database connection error" });
       }
-      res
-        .status(500)
-        .json({
-          code: CR.serverError,
-          message: "Internal server error UserController " + error,
-        });
+      res.status(500).json({
+        code: CR.serverError,
+        message: "Internal server error UserController " + error,
+      });
     }
   }
 
@@ -191,18 +187,20 @@ class UserController {
 
   async deleteUser(req, res) {
     try {
-      const userId = req.params.id;
+      const { userId } = req.decoded;
       const deletedUser = await this.userService.deleteUser(userId);
 
-  
       if (deletedUser) {
-        res
-          .status(200)
-          .json({
-            code: CR.success,
-            message: "Request Successful",
-          })
-          .end();
+        const delAuth = await this.authService.deleteAuth(userId);
+        if (delAuth) {
+          res
+            .status(200)
+            .json({
+              code: CR.success,
+              message: "Request Successful",
+            })
+            .end();
+        }
       } else {
         res.status(404).json({ code: CR.notFound, message: "User not found" });
       }
