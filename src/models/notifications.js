@@ -4,40 +4,26 @@ const mongoose = require("mongoose");
 const NotificationSchema = mongoose.Schema(
   {
     // _id: mongoose.Schema.Types.ObjectId,
-    name: {
+    title: {
       type: String,
       required: true,
     },
-    description: {
+    message: {
       type: String,
       required: true,
+    },
+    message: {
+      type: String,
+      default: "All",
     },
     category: {
-      type: Array,
-      required: true,
-    },
-    extra: {
-      type: Array,
-      required: true,
-    },
-    nutrients: {
-      type: Array,
-      required: true,
-    },
-    ingredients: {
-      type: Array,
-    },
-    guides: {
-      type: Array,
-    },
-    tribe: {
-      type: Array,
-    },
-    imageUrl: {
       type: String,
+      default: "Message",
+      enum: ["Tip", "Broadcast"],
     },
-    country: {
-      type: String,
+    date: {
+      type: Date,
+      required: true,
     },
   },
   { timestamps: true }
