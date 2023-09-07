@@ -1,4 +1,4 @@
-const Notification = require("../models/notifications");
+const Notification = require("../models/Notifications");
 
 class NotificationRepository {
   async createData(data) {
@@ -21,13 +21,13 @@ class NotificationRepository {
   //   }
   // }
 
-  // async getByQuery(q) {
-  //   try {
-  //     return await Meal.findOne(q);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  async getByQuery(q) {
+    try {
+      return await Notification.findOne(q);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // async updateData(id, data) {
   //   return await Meal.findByIdAndUpdate(id, data, { new: true });

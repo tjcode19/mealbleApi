@@ -24,8 +24,7 @@ class NotificationController {
     }
   }
 
-  async getByTag(req, res) {
-    console.log("tagbyds");
+  async getByUser(req, res) {
     try {
       const page = req.query.page || 1;
       const type = req.params.tag; // Current page number

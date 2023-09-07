@@ -58,7 +58,7 @@ class MealService {
     }
   }
 
-  async createData(data) {
+  async createMessage(data) {
     try {
       const cal = await this.repo.createData(data);
       if (cal) {
@@ -66,7 +66,47 @@ class MealService {
           status: 201,
           res: {
             code: CR.success,
-            message: "Meal Added Successfully",
+            message: "Message Created Successfully",
+            data: cal,
+          },
+        };
+      } else {
+        return {
+          status: 404,
+          res: {
+            code: CR.notFound,
+            message: "Operation Failed",
+          },
+        };
+      }
+    } catch (error) {
+      if (String(error).includes("MongoNotConnectedError")) {
+        return {
+          status: 500,
+          res: { code: CR.serverError, message: "Database connection error" },
+        };
+      }
+
+      return {
+        status: 500,
+        res: {
+          code: CR.serverError,
+          message: "Internal server error:" + error,
+          dev: "In Create Message Service",
+        },
+      };
+    }
+  }
+
+  async getAllMessages(limit, offset) {
+    try {
+      const cal = await this.repo.getAll(limit, offset);
+      if (cal) {
+        return {
+          status: 200,
+          res: {
+            code: CR.success,
+            message: "Query Successful",
             data: cal,
           },
         };
@@ -98,9 +138,9 @@ class MealService {
     }
   }
 
-  async getAll(limit, offset) {
+  async getMessageByQuery(query) {
     try {
-      const cal = await this.repo.getAll(limit, offset);
+      const cal = await this.repo.getByQuery(query);
       if (cal) {
         return {
           status: 200,
