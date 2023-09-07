@@ -6,6 +6,20 @@ class NotificationController {
     this.oServices = new NotificationService();
   }
 
+  async createMessage(req, res) {
+    const { title, message, owner, category } = req.body;
+    try {
+      const curs = await this.oServices.createMessage({
+        title,
+        message,
+        owner,
+        category,
+        data: new Date(),
+      });
+      res.status(curs.status).json(curs.res);
+    } catch (error) {}
+  }
+
   async getAll(req, res) {
     try {
       const page = req.query.page || 1;
@@ -25,13 +39,14 @@ class NotificationController {
   }
 
   async getByUser(req, res) {
+    const { userId } = req.decoded;
     try {
-      const page = req.query.page || 1;
-      const type = req.params.tag; // Current page number
-      const limit = req.query.limit || 10; // Number of items per page
-      const offset = (page - 1) * limit; // Offset to skip the required number of items
-
-      const curs = await this.oServices.getByTag(limit, offset, type);
+      const curs = await this.oServices.getMessageByQuery({
+        $or: [{ owner: userId }, { owner: "All" }],
+        owner: {
+          $gte: currentDate,
+        },
+      });
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
@@ -43,7 +58,7 @@ class NotificationController {
     }
   }
 
-  async getById(req, res) {
+  async getByCategory(req, res) {
     try {
       const cur = await this.oServices.getById(req.params.id);
       res.status(cur.status).json(cur.res);
