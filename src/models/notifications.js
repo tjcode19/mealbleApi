@@ -12,7 +12,7 @@ const NotificationSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    message: {
+    owner: {
       type: String,
       default: "All",
     },
