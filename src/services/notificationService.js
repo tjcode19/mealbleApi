@@ -11,7 +11,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-class MealService {
+class NotificationService {
   constructor() {
     this.repo = new NotificationRepository();
   }
@@ -242,4 +242,4 @@ class MealService {
   }
 }
 
-module.exports = MealService;
+module.exports = NotificationService;

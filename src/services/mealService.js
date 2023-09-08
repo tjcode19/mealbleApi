@@ -1,10 +1,6 @@
 const MealRepository = require("../repositories/mealRepo");
 const CR = require("../utils/customResponses");
-const path = require("path");
-const fs = require("fs");
-const sharp = require("sharp");
 const cloudinary = require("../utils/cloudinary").v2;
-const uploader = require("../utils/multer");
 
 class MealService {
   constructor() {

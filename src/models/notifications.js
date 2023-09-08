@@ -19,7 +19,7 @@ const NotificationSchema = mongoose.Schema(
     category: {
       type: String,
       default: "Message",
-      enum: ["Tip", "Broadcast"],
+      enum: ["Tips", "Broadcast", "Message"],
     },
     date: {
       type: Date,

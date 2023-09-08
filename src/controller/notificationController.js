@@ -14,7 +14,7 @@ class NotificationController {
         message,
         owner,
         category,
-        data: new Date(),
+        date: new Date(),
       });
       res.status(curs.status).json(curs.res);
     } catch (error) {}
@@ -58,6 +58,22 @@ class NotificationController {
     }
   }
 
+  async getTips(req, res) {
+    try {
+      const curs = await this.oServices.getMessageByQuery({
+        category: "Tips",
+      });
+      res.status(curs.status).json(curs.res);
+    } catch (error) {
+      console.log(error);
+      res.json({
+        code: CR.serverError,
+        message: error,
+        dev: "get Notifcation Tips Controller",
+      });
+    }
+  }
+
   async getByCategory(req, res) {
     try {
       const cur = await this.oServices.getById(req.params.id);
@@ -67,7 +83,7 @@ class NotificationController {
     }
   }
 
-  async sendMessage(req, res) {
+  async sendPush(req, res) {
     const data = req.body;
 
     try {
