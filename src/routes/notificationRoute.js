@@ -10,8 +10,7 @@ router.route("/send-email").post(controller.sendEmail.bind(controller));
 router.route("/").post(controller.sendMessage.bind(controller));
 router.route("/:id").patch(controller.update.bind(controller));
 router.route("/:id").delete(controller.delete.bind(controller));
-router.route("/:id").get(controller.getById.bind(controller));
-router.route("/filter/:tag").get(controller.getByTag.bind(controller));
+router.route("/:id").get(controller.getByUser.bind(controller));
 router.route("/").get(controller.getAll.bind(controller));
 
 module.exports = router;
