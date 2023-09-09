@@ -11,7 +11,7 @@ const userRouter = require("./routes/userRoutes");
 const timetableRouter = require("./routes/timetableRoute");
 const subscriptionRouter = require("./routes/subscriptionRoute");
 const storeRouter = require("./routes/storeRoute");
-const notificationRouter = require("./routes/notificationRoute");
+// const notificationRouter = require("./routes/notificationRoute");
 const SchedulerService = require("./services/schedulerService");
 
 
@@ -31,7 +31,7 @@ app.use("/user", userRouter);
 app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/store", storeRouter);
-app.use("/notification", notificationRouter);
+// app.use("/notification", notificationRouter);
 
 // app.options("*", cors());
 // app.use(express.static("./public"));
