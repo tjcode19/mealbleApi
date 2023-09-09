@@ -6,7 +6,7 @@ require("dotenv/config");
 const path = require("path");
 
 const mealRouter = require("./routes/mealRoutes");
-const authRouter = require("./routes/authRoutes");
+// const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const timetableRouter = require("./routes/timetableRoute");
 const subscriptionRouter = require("./routes/subscriptionRoute");
@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/uploads", express.static(path.join(__dirname, "uploadNew")));
 app.use("/meal", mealRouter);
-app.use("/auth", authRouter);
+// app.use("/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
