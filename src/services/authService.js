@@ -4,7 +4,7 @@ const UserService = require("../services/userService");
 const CommonService = require("../services/commonService");
 const bcrypt = require("bcrypt");
 
-// const NotificationService = require("../services/notificationService");
+const NotificationService = require("../services/notificationService");
 var inlineCss = require("inline-css");
 const { verifyEmailTemp } = require("../html_temp/email_verification_temp");
 
@@ -17,7 +17,7 @@ class AuthService {
     this.timetableRepo = new TimetableRepository();
     this.userService = new UserService();
     this.commonService = new CommonService();
-    // this.notiService = new NotificationService();
+    this.notiService = new NotificationService();
   }
 
   async createAuth(userData) {
@@ -144,7 +144,7 @@ class AuthService {
           html = htm;
         });
 
-        // this.notiService.sendEmail(email, "Verification Code", html);
+        this.notiService.sendEmail(email, "Verification Code", html);
 
         if (updateUser) {
           return {
