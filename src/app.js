@@ -45,7 +45,7 @@ app.use("/notification", notificationRouter);
 // });
 
 app.use("/", (req, res) => {
-  res.send("Welcome to the Mealble");
+  res.send("Welcome to the Mealble Production Server");
 });
 
 //Connect to DB
