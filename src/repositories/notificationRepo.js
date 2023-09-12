@@ -1,4 +1,4 @@
-const Notification = require("../models/Notifications");
+const Notification = require("../models/CustomNotifications");
 
 class NotificationRepository {
   async createData(data) {
