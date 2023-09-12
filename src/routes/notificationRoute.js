@@ -13,6 +13,7 @@ router.route("/").post(controller.createMessage.bind(controller));
 router.route("/:id").patch(controller.update.bind(controller));
 router.route("/:id").delete(controller.delete.bind(controller));
 router.route("/tips").get(authenticate, controller.getTips.bind(controller));
+router.route("/messages").get(authenticate, controller.getNotifications.bind(controller));
 router.route("/:id").get(controller.getByUser.bind(controller));
 router.route("/").get(controller.getAll.bind(controller));
 

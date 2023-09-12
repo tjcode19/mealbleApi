@@ -26,7 +26,7 @@ class NotificationController {
       const limit = req.query.limit || 100; // Number of items per page
       const offset = (page - 1) * limit; // Offset to skip the required number of items
 
-      const curs = await this.oServices.getAll(limit, offset);
+      const curs = await this.oServices.getAllMessages(limit, offset);
       res.status(curs.status).json(curs.res);
     } catch (error) {
       console.log(error);
@@ -70,6 +70,24 @@ class NotificationController {
         code: CR.serverError,
         message: error,
         dev: "get Notifcation Tips Controller",
+      });
+    }
+  }
+
+  async getNotifications(req, res) {
+    try {
+      const curs = await this.oServices.getMessageByQuery({
+        category: {
+          $ne: "Tips",
+        },
+      });
+      res.status(curs.status).json(curs.res);
+    } catch (error) {
+      console.log(error);
+      res.json({
+        code: CR.serverError,
+        message: error,
+        dev: "get Non-Tips Controller",
       });
     }
   }
