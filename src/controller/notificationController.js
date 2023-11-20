@@ -7,8 +7,10 @@ class NotificationController {
   }
 
   async createMessage(req, res) {
+
     const { title, message, owner, category } = req.body;
     try {
+      
       const curs = await this.oServices.createMessage({
         title,
         message,

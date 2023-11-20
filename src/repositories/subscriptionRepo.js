@@ -6,7 +6,7 @@ class SubscriptionRepository {
   }
 
   async getAll() {
-    return await Subscription.find().lean();
+    return await Subscription.find({ active: true }).lean();
   }
 
   async getById(id) {
@@ -15,7 +15,11 @@ class SubscriptionRepository {
 
   async getByTag(limit, offset, query) {
     try {
-      return await Subscription.find().lean().sort({ _id: -1 }).skip(offset).limit(limit);
+      return await Subscription.find()
+        .lean()
+        .sort({ _id: -1 })
+        .skip(offset)
+        .limit(limit);
     } catch (error) {
       console.log(error);
     }
