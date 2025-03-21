@@ -46,7 +46,7 @@ class AuthService {
             status: 200,
             res: {
               code: CR.success,
-              message: "Login Successful",
+              message: "Login was Successful",
 
               data: {
                 token: t.token,

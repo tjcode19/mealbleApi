@@ -1,7 +1,17 @@
 const SubscriptionRepository = require("../repositories/subscriptionRepo");
 const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
-const { google } = require('googleapis');
+const { google } = require("googleapis");
+const path = require("path");
+
+// Initialize auth with the JSON key file
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  },
+  scopes: ["https://www.googleapis.com/auth/androidpublisher"],
+});
 
 class SubscriptionService {
   constructor() {
@@ -9,40 +19,67 @@ class SubscriptionService {
     this.userRepo = new UserRepository();
   }
 
-  async buySub(){
+  async buySub() {}
 
-  }
+  // Verify a subscription purchase
+  async verifyPurchase(productId, purchaseToken) {
+    const androidPublisher = google.androidpublisher("v3");
+    const authClient = await auth.getClient();
 
-  async verifyPurchase({productId, purchaseToken}){
-    const jwtClient = new google.auth.JWT({
-      email: process.env.CLIENT_EMAIL,
-      key: process.env.PRIVATE_KEY,
-      scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-    });
-  
+    console.log("here", productId, purchaseToken);
+
     try {
-      await jwtClient.authorize();
-      const androidPublisher = google.androidpublisher({
-        version: 'v3',
-        auth: jwtClient,
-      });
-  
-      const packageName = 'com.bolxtine.mealble'; // Replace with your app's package name
-      // const productId = 'your_product_id'; // Replace with your in-app product ID
-  
-      const result = await androidPublisher.purchases.products.get({
-        packageName,
-        productId,
+      const res = await androidPublisher.purchases.subscriptions.get({
+        auth: authClient,
+        packageName: "com.bolxtine.mealble", // Your app's package name
+        subscriptionId: productId, // e.g., 'monthly_premium'
         token: purchaseToken,
       });
-  
-      console.log('Verification Result:', result.data);
-      return result.data;
-    } catch (err) {
-      console.error('Error verifying purchase:', err);
-      throw err;
-    }
 
+      console.log("Verification Result:", res.data);
+
+      return {
+        status: 200,
+        res: {
+          code: CR.success,
+          message: "Query Successful",
+          data: res.data,
+        },
+      };
+    } catch (error) {
+      throw new Error(`Verification failed: ${error.message}`);
+    }
+  }
+
+  // Verify a subscription purchase
+  async acknowledgePurchase(productId, purchaseToken) {
+    const androidPublisher = google.androidpublisher("v3");
+    const authClient = await auth.getClient();
+
+    try {
+      const res = await androidPublisher.purchases.subscriptions.acknowledge({
+        auth: authClient,
+        packageName: "com.bolxtine.mealble", // Your app's package name
+        subscriptionId: productId, // e.g., 'monthly_premium'
+        token: purchaseToken,
+        requestBody: {
+          // Empty payload (required by Google)
+        },
+      });
+
+      console.log("Acknowledgement Result:", res);
+
+      return {
+        status: 200,
+        res: {
+          code: CR.success,
+          message: "Acknowledgement Successful",
+          data: res.data,
+        },
+      };
+    } catch (error) {
+      throw new Error(`Acknowledgement failed: ${error.message}`);
+    }
   }
 
   async createData(data) {
@@ -89,7 +126,7 @@ class SubscriptionService {
     try {
       const cal = await this.repo.getAll();
       const user = await this.userRepo.getUserById(userId);
-      let c ;
+      let c;
 
       if (cal) {
         c = cal;
