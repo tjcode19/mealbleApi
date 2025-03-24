@@ -91,6 +91,7 @@ class SubscriptionService {
 
       // 1. Verify the notification with Google Play API
       const authClient = await auth.getClient();
+      const androidPublisher = google.androidpublisher("v3");
       const subscription = await androidPublisher.purchases.subscriptions.get({
         auth: authClient,
         packageName: packageName, // Your app's package name
