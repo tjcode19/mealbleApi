@@ -127,7 +127,7 @@ class TimetableController {
         dur,
         shuffle,
         regenerate,
-        purchaseToken=token
+        token
       );
       res.status(cal.status).json(cal.res);
     } catch (error) {
