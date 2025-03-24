@@ -144,8 +144,11 @@ class SubscriptionController {
   }
 
   async googleRTDN(req, res) {
+    const {message} = res.body;
+    const decodedData = JSON.parse(Buffer.from(message.data, "base64").toString("utf-8"));
 
-    console.log(req.body);
+    console.log("Decoded RTDN Event:", decodedData);
+
     // const { subscriptionNotification } = req.body;
 
 
