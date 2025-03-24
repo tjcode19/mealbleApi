@@ -97,6 +97,8 @@ class SubscriptionService {
       const { subscriptionId, purchaseToken, notificationType } =
         subscriptionNotification;
 
+      console.log(subscriptionNotification);
+
       // 1. Verify the notification with Google Play API
       const authClient = await auth.getClient();
       const androidPublisher = google.androidpublisher("v3");
@@ -114,7 +116,6 @@ class SubscriptionService {
       // 2. Extract subscription details
       const expiryTime = new Date(parseInt(subscription.data.expiryTimeMillis));
       const linkedPurchaseToken = subscription.data.linkedPurchaseToken;
-
 
       // 3. Find the user in your database
       const table = await this.timetableRepo.getByQuery({
