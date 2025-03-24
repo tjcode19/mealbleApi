@@ -9,7 +9,7 @@ const controller = new TimetableController();
 // router.route("/").post(controller.create.bind(controller));
 // router.route("/:id").patch(controller.update.bind(controller));
 router
-  .route("/generate/:subId/:type")
+  .route("/generate/:subId/:type/:token")
   .get(authenticate, controller.create.bind(controller));
 router.route("/shuffle/:id").get(controller.shuffle.bind(controller));
 router.route("/regenerate/:id").get(controller.regenerate.bind(controller));

@@ -120,7 +120,7 @@ class SubscriptionService {
       // 3. Find the user in your database
       const table = await this.timetableRepo.getByQuery({
         purchaseToken: purchaseToken,
-        // active: true,
+        active: true,
       });
 
       const tTable = table[0];
