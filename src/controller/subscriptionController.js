@@ -145,15 +145,11 @@ class SubscriptionController {
 
   async googleRTDN(req, res) {
     const message = req.body.message
-    const decodedData = JSON.parse(Buffer.from(message.data, "base64").toString("utf-8"));
+    
 
-    console.log("Decoded RTDN Event:", decodedData);
-
-    // const { subscriptionNotification } = req.body;
-
-
-
+    
     try {
+      const subscriptionNotification = JSON.parse(Buffer.from(message.data, "base64").toString("utf-8"));
       // if (productId == null || productId === "") {
       //   return res.status(400).json({
       //     code: CR.badRequest,
@@ -168,8 +164,8 @@ class SubscriptionController {
       //   });
       // }
 
-      // const cal = await this.oServices.googleRTDN(subscriptionNotification);
-      res.status(cal.status).json({"code":"no"});
+      const cal = await this.oServices.googleRTDN(subscriptionNotification);
+      res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
     }

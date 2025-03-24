@@ -108,6 +108,8 @@ class SubscriptionService {
         active: true,
       });
 
+      console.log("Existing timetable:", tTable);
+
       if (!tTable) {
         return {
           status: 500,
