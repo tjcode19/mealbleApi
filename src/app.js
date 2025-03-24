@@ -32,7 +32,6 @@ app.use("/timetable", timetableRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/store", storeRouter);
 app.use("/notification", notificationRouter);
-app.use("google-rtdn");
 
 // app.options("*", cors());
 // app.use(express.static("./public"));
