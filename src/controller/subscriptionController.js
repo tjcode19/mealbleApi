@@ -147,19 +147,19 @@ class SubscriptionController {
     const { subscriptionNotification } = req.body;
 
     try {
-      if (productId == null || productId === "") {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Product Id is required",
-        });
-      }
+      // if (productId == null || productId === "") {
+      //   return res.status(400).json({
+      //     code: CR.badRequest,
+      //     message: "Product Id is required",
+      //   });
+      // }
 
-      if (purchaseToken == null || purchaseToken === "") {
-        return res.status(400).json({
-          code: CR.badRequest,
-          message: "Purchase Token is required",
-        });
-      }
+      // if (purchaseToken == null || purchaseToken === "") {
+      //   return res.status(400).json({
+      //     code: CR.badRequest,
+      //     message: "Purchase Token is required",
+      //   });
+      // }
 
       const cal = await this.oServices.googleRTDN(subscriptionNotification);
       res.status(cal.status).json(cal.res);
