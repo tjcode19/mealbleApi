@@ -102,6 +102,8 @@ class SubscriptionService {
       const expiryTime = new Date(parseInt(subscription.data.expiryTimeMillis));
       const linkedPurchaseToken = subscription.data.linkedPurchaseToken;
 
+      console.log("LinkedToken:", subscription.data.linkedPurchaseToken);
+
       // 3. Find the user in your database
       const tTable = await this.timetableRepo.getByQuery({
         purchaseToken: linkedPurchaseToken,
