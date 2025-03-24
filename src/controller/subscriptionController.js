@@ -144,7 +144,11 @@ class SubscriptionController {
   }
 
   async googleRTDN(req, res) {
-    const { subscriptionNotification } = req.body;
+
+    console.log(req.body);
+    // const { subscriptionNotification } = req.body;
+
+
 
     try {
       // if (productId == null || productId === "") {
@@ -161,8 +165,8 @@ class SubscriptionController {
       //   });
       // }
 
-      const cal = await this.oServices.googleRTDN(subscriptionNotification);
-      res.status(cal.status).json(cal.res);
+      // const cal = await this.oServices.googleRTDN(subscriptionNotification);
+      res.status(cal.status).json({"code":"no"});
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
     }
