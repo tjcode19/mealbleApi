@@ -1,4 +1,5 @@
 const SubscriptionRepository = require("../repositories/subscriptionRepo");
+const TimetableRepository = require("../repositories/timetableRepo");
 const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 const { google } = require("googleapis");
@@ -8,15 +9,18 @@ const path = require("path");
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   },
   scopes: ["https://www.googleapis.com/auth/androidpublisher"],
 });
+
+const packageName = "com.bolxtine.mealble";
 
 class SubscriptionService {
   constructor() {
     this.repo = new SubscriptionRepository();
     this.userRepo = new UserRepository();
+    this.timetableRepo = new TimetableRepository();
   }
 
   async buySub() {}
@@ -26,12 +30,10 @@ class SubscriptionService {
     const androidPublisher = google.androidpublisher("v3");
     const authClient = await auth.getClient();
 
-    console.log("here", productId, purchaseToken);
-
     try {
       const res = await androidPublisher.purchases.subscriptions.get({
         auth: authClient,
-        packageName: "com.bolxtine.mealble", // Your app's package name
+        packageName: packageName, // Your app's package name
         subscriptionId: productId, // e.g., 'monthly_premium'
         token: purchaseToken,
       });
@@ -59,7 +61,7 @@ class SubscriptionService {
     try {
       const res = await androidPublisher.purchases.subscriptions.acknowledge({
         auth: authClient,
-        packageName: "com.bolxtine.mealble", // Your app's package name
+        packageName: packageName, // Your app's package name
         subscriptionId: productId, // e.g., 'monthly_premium'
         token: purchaseToken,
         requestBody: {
@@ -79,6 +81,101 @@ class SubscriptionService {
       };
     } catch (error) {
       throw new Error(`Acknowledgement failed: ${error.message}`);
+    }
+  }
+
+  async googleRTDN(subscriptionNotification) {
+    try {
+      const { subscriptionId, purchaseToken, notificationType } =
+        subscriptionNotification;
+
+      // 1. Verify the notification with Google Play API
+      const authClient = await auth.getClient();
+      const subscription = await androidPublisher.purchases.subscriptions.get({
+        auth: authClient,
+        packageName: packageName, // Your app's package name
+        subscriptionId: subscriptionId,
+        token: purchaseToken,
+      });
+
+      // 2. Extract subscription details
+      const expiryTime = new Date(parseInt(subscription.data.expiryTimeMillis));
+      const linkedPurchaseToken = subscription.data.linkedPurchaseToken;
+
+      // 3. Find the user in your database
+      const tTable = await this.timetableRepo.getByQuery({
+        purchaseToken: linkedPurchaseToken,
+        active: true,
+      });
+
+      if (!tTable) {
+        return {
+          status: 500,
+          res: {
+            code: CR.notFound,
+            message: "Plan not Failed",
+          },
+        };
+      }
+
+      await updateSub(notificationType, purchaseToken, tTable.owner.id, tTable.sub.id, tTable.sub.period, tTable.sub.shuttle, tTable.sub.regenerate);
+
+      // 4. Update the user's subscription
+
+      // await User.updateOne(
+      //   { _id: user._id },
+      //   {
+      //     $set: {
+      //       "subscriptions.$.expiryTime": expiryTime,
+      //       "subscriptions.$.purchaseToken": purchaseToken,
+      //     },
+      //   }
+      // );
+
+      res.status(200).end();
+    } catch (error) {
+      console.error("RTDN error:", error);
+      res.status(500).send("RTDN handling failed");
+    }
+  }
+
+  async updateSub(
+    notificationType,
+    token,
+    userId,
+    subId,
+    dur,
+    shuffle,
+    regenerate
+  ) {
+    switch (notificationType) {
+      case 1: // SUBSCRIPTION_RECOVERED
+      case 2:
+        {
+          console.log("renew triggered");
+          this.timetableRepo.updateData(tTable.id, { active: false });
+          const cal = await this.timetableRepo.createData(
+            userId,
+            subId,
+            dur,
+            shuffle,
+            regenerate,
+            (purchaseToken = token)
+          );
+        }
+        console.log("Table generate ", cal);
+        break;
+      case 3: // SUBSCRIPTION_CANCELED
+      console.log("subscription cancelled");
+        break;
+      case 4: // SUBSCRIPTION_PURCHASED
+        // New subscription
+        break;
+      case 5: // SUBSCRIPTION_ON_HOLD (e.g., payment failed)
+        // Handle grace period
+        break;
+      default:
+        console.log("Unknown notification type:", notificationType);
     }
   }
 

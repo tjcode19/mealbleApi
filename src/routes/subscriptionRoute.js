@@ -9,6 +9,7 @@ const controller = new SubscriptionController();
 router
   .route("/verify-purchase")
   .post(controller.verifyPurchase.bind(controller));
+router.route("/google-rtdn").post(controller.googleRTDN(controller));
 router
   .route("/acknowledge-purchase")
   .post(controller.acknowledgePurchase.bind(controller));

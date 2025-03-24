@@ -6,6 +6,10 @@ const timetableSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  purchaseToken: {
+    type: String,
+    required: true,
+  },
   startDate: {
     type: Date,
     required: true,
@@ -23,6 +27,7 @@ const timetableSchema = new mongoose.Schema({
       shuffle: Number,
       regenerate: Number,
       period: Number,
+      productId: String,
     },
   },
   sub: {

@@ -88,7 +88,7 @@ class TimetableController {
     // const data = req.body;
 
     const { userId } = req.decoded;
-    const { subId, type } = req.params;
+    const { subId, type, token } = req.params;
     try {
       if (subId == null || subId === "") {
         return res
@@ -126,7 +126,8 @@ class TimetableController {
         subId,
         dur,
         shuffle,
-        regenerate
+        regenerate,
+        purchaseToken=token
       );
       res.status(cal.status).json(cal.res);
     } catch (error) {
