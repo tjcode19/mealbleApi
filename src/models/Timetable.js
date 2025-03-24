@@ -27,7 +27,6 @@ const timetableSchema = new mongoose.Schema({
       shuffle: Number,
       regenerate: Number,
       period: Number,
-      productId: String,
     },
   },
   sub: {

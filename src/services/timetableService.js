@@ -13,7 +13,7 @@ class TimetableService {
     this.lastAssignedDays;
   }
 
-  async createData(userId, subId, duration, shuffle, regenerate, productId) {
+  async createData(userId, subId, duration, shuffle, regenerate, purchaseToken) {
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -46,9 +46,10 @@ class TimetableService {
         owner: userId, // The ID of the user associated with the timetable
         startDate: startDate, // The start date of the timetable
         endDate: endDate,
-        subData: { period: dur, shuffle, regenerate, productId },
+        subData: { period: dur, shuffle, regenerate },
         sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
+        purchaseToken:purchaseToken
       };
 
       const cal = await this.repo.createData(timetableData);

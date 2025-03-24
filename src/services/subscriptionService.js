@@ -1,5 +1,6 @@
 const SubscriptionRepository = require("../repositories/subscriptionRepo");
 const TimetableRepository = require("../repositories/timetableRepo");
+const TimetableService = require("../services/timetableService");
 const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 const { google } = require("googleapis");
@@ -21,6 +22,7 @@ class SubscriptionService {
     this.repo = new SubscriptionRepository();
     this.userRepo = new UserRepository();
     this.timetableRepo = new TimetableRepository();
+    this.timetableService = new TimetableService();
   }
 
   async buySub() {}
@@ -69,8 +71,6 @@ class SubscriptionService {
         },
       });
 
-      console.log("Acknowledgement Result:", res);
-
       return {
         status: 200,
         res: {
@@ -80,12 +80,20 @@ class SubscriptionService {
         },
       };
     } catch (error) {
-      throw new Error(`Acknowledgement failed: ${error.message}`);
+      // throw new Error(`Acknowledgement failed: ${error.message}`);
+      return {
+        status: 500,
+        res: {
+          code: CR.notFound,
+          message: `Acknowledgement Failed: ${error.message}`,
+        },
+      };
     }
   }
 
-  async googleRTDN(subscriptionNotification) {
+  async googleRTDN(decodedData) {
     try {
+      const { subscriptionNotification } = decodedData;
       const { subscriptionId, purchaseToken, notificationType } =
         subscriptionNotification;
 
@@ -99,45 +107,46 @@ class SubscriptionService {
         token: purchaseToken,
       });
 
+      if (subscription.status == 200) {
+        this.acknowledgePurchase(subscriptionId, purchaseToken);
+      }
+
       // 2. Extract subscription details
       const expiryTime = new Date(parseInt(subscription.data.expiryTimeMillis));
       const linkedPurchaseToken = subscription.data.linkedPurchaseToken;
 
-      console.log("LinkedToken:", subscription.data.linkedPurchaseToken);
 
       // 3. Find the user in your database
-      const tTable = await this.timetableRepo.getByQuery({
-        purchaseToken: linkedPurchaseToken,
-        active: true,
+      const table = await this.timetableRepo.getByQuery({
+        purchaseToken: purchaseToken,
+        // active: true,
       });
 
-      console.log("Existing timetable:", tTable);
+      const tTable = table[0];
 
       if (!tTable) {
         return {
           status: 500,
           res: {
             code: CR.notFound,
-            message: "Plan not Failed",
+            message: "Timetable not Found",
           },
         };
       }
 
-      await updateSub(notificationType, purchaseToken, tTable.owner.id, tTable.sub.id, tTable.sub.period, tTable.sub.shuttle, tTable.sub.regenerate);
-
       // 4. Update the user's subscription
+      const res = await this.updateSub(
+        notificationType,
+        purchaseToken,
+        tTable._id,
+        tTable.owner, // Corrected: Use owner directly
+        tTable.sub._id, // Corrected: Use _id instead of id
+        tTable.subData.period, // Corrected: Ensure period is correct
+        tTable.subData.shuffle, // Corrected: Shuffle is inside subData
+        tTable.subData.regenerate // Corrected: Regenerate is inside subData
+      );
 
-      // await User.updateOne(
-      //   { _id: user._id },
-      //   {
-      //     $set: {
-      //       "subscriptions.$.expiryTime": expiryTime,
-      //       "subscriptions.$.purchaseToken": purchaseToken,
-      //     },
-      //   }
-      // );
-
-      res.status(200).end();
+      return res;
     } catch (error) {
       console.error("RTDN error:", error);
       res.status(500).send("RTDN handling failed");
@@ -146,7 +155,8 @@ class SubscriptionService {
 
   async updateSub(
     notificationType,
-    token,
+    purchaseToken,
+    tId,
     userId,
     subId,
     dur,
@@ -155,23 +165,25 @@ class SubscriptionService {
   ) {
     switch (notificationType) {
       case 1: // SUBSCRIPTION_RECOVERED
-      case 2:
-        {
-          console.log("renew triggered");
-          this.timetableRepo.updateData(tTable.id, { active: false });
-          const cal = await this.timetableRepo.createData(
-            userId,
-            subId,
-            dur,
-            shuffle,
-            regenerate,
-            (purchaseToken = token)
-          );
+      case 2: {
+        const a = await this.timetableRepo.updateData(tId, { active: false });
+
+        if (a != null) {
         }
-        console.log("Table generate ", cal);
-        break;
+
+        const cal = await this.timetableService.createData(
+          userId,
+          subId,
+          dur,
+          shuffle,
+          regenerate,
+          purchaseToken
+        );
+        return cal;
+      }
+
       case 3: // SUBSCRIPTION_CANCELED
-      console.log("subscription cancelled");
+        console.log("subscription cancelled");
         break;
       case 4: // SUBSCRIPTION_PURCHASED
         // New subscription
