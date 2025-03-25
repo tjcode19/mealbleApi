@@ -161,13 +161,17 @@ class SubscriptionService {
     }
   }
 
+  async decodeJwtHeader(token) {
+    const [headerEncoded] = token.split('.');
+    const header = Buffer.from(headerEncoded, 'base64').toString();
+    return JSON.parse(header);
+  }
+
   // Verify the JWT signature and decode the payload
   async verifyAppleJWT(jwtPayload) {
     try {
       // Extract the JWT header to get the key ID (kid)
-      const header = JSON.parse(
-        Buffer.from(jwtPayload.signedPayload.split(".")[0], "base64").toString()
-      );
+      const header = this.decodeJwtHeader(jwtPayload.signedPayload)
 
       // Get the public key from Apple's JWKS endpoint
       const key = await appleJwksClient.getSigningKey(header.kid);
