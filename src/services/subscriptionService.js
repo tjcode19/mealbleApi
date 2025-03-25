@@ -207,6 +207,7 @@ class SubscriptionService {
   }
 
   async appleRTDN(payload) {
+    console.log("Apple RTDN hit");
     try {
       const decoded = await this.verifyAppleJWT(payload);
 
