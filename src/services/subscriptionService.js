@@ -5,6 +5,9 @@ const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 const { google } = require("googleapis");
 const path = require("path");
+const { JwtHeader, verify } = require("jsonwebtoken");
+const jwksClient = require("jwks-rsa");
+const axios = require("axios");
 
 // Initialize auth with the JSON key file
 const auth = new google.auth.GoogleAuth({
@@ -14,6 +17,14 @@ const auth = new google.auth.GoogleAuth({
   },
   scopes: ["https://www.googleapis.com/auth/androidpublisher"],
 });
+// Create a JWKS client to fetch Apple's public keys
+const appleJwksClient = jwksClient({
+  jwksUri: "https://appleid.apple.com/auth/keys", // Apple's public keys URL
+  cache: true,
+});
+
+const APPLE_PRODUCTION_URL = "https://buy.itunes.apple.com/verifyReceipt";
+const APPLE_SANDBOX_URL = "https://sandbox.itunes.apple.com/verifyReceipt";
 
 const packageName = "com.bolxtine.mealble";
 
@@ -27,29 +38,147 @@ class SubscriptionService {
 
   async buySub() {}
 
+  // Verify the JWT signature and decode the payload
+  async verifyAppleNotification(jwtPayload) {
+    try {
+      // Extract the JWT header to get the key ID (kid)
+      const header = JSON.parse(
+        Buffer.from(jwtPayload.signedPayload.split(".")[0], "base64").toString()
+      );
+
+      // Get the public key from Apple's JWKS endpoint
+      const key = await appleJwksClient.getSigningKey(header.kid);
+      const publicKey = key.getPublicKey();
+
+      // Verify the JWT signature and decode the payload
+      const decoded = verify(jwtPayload.signedPayload, publicKey, {
+        algorithms: ["RS256"],
+      });
+
+      // Validate the payload
+      if (
+        decoded.iss !== "appstoreconnect-v1" ||
+        decoded.aud !== "com.bolxtine.mealbleapp"
+      ) {
+        throw new Error("Invalid issuer or audience");
+      }
+
+      return decoded;
+    } catch (error) {
+      throw new Error(
+        `Apple notification verification failed: ${error.message}`
+      );
+    }
+  }
+
+  async handleAppleNotification(decoded) {
+    const notificationType = decoded.notificationType;
+    const transactionInfo = decoded.data.signedTransactionInfo;
+
+    // Handle different notification types
+    switch (notificationType) {
+      case "DID_RENEW":
+        // Update subscription expiry date
+        await updateSubscription(transactionInfo);
+        break;
+      case "DID_FAIL_TO_RENEW":
+        // Handle payment failure
+        break;
+      default:
+        console.log("Unhandled notification type:", notificationType);
+    }
+  }
+
+  // async verifyPurchase(productId, purchaseToken) {
+  //   try {
+  //     const payload = req.body;
+  //     // Verify JWT signature using Apple's public key
+  //     const decoded = await verifyAppleNotification(payload);
+
+  //     // Handle notification type (e.g., DID_RENEW, DID_FAIL)
+  //     await handleAppleNotification(decoded);
+  //     res.status(200).end();
+  //   } catch (error) {
+  //     res.status(500).send('Apple RTDN failed');
+  //   }
+  // }
+
   // Verify a subscription purchase
-  async verifyPurchase(productId, purchaseToken) {
+  async verifyPurchase(productId, purchaseToken, isAndroid = true) {
     const androidPublisher = google.androidpublisher("v3");
     const authClient = await auth.getClient();
+    const appleURL =
+      process.env.NODE_ENV === "production"
+        ? APPLE_PRODUCTION_URL
+        : APPLE_SANDBOX_URL;
+
+    var res;
 
     try {
-      const res = await androidPublisher.purchases.subscriptions.get({
-        auth: authClient,
-        packageName: packageName, // Your app's package name
-        subscriptionId: productId, // e.g., 'monthly_premium'
-        token: purchaseToken,
-      });
+      if (isAndroid) {
+        const resBody = await androidPublisher.purchases.subscriptions.get({
+          auth: authClient,
+          packageName: packageName, // Your app's package name
+          subscriptionId: productId, // e.g., 'monthly_premium'
+          token: purchaseToken,
+        });
+
+        if (resBody.status === 200) {
+          res = {
+            status: 200,
+            res: {
+              code: CR.success,
+              message: "Google Verification Successful",
+              data: resBody.data,
+            },
+          };
+        } else {
+          res = {
+            status: 404,
+            res: {
+              code: CR.notFound,
+              message: "Google Verification Failed",
+            },
+          };
+        }
+      } else {
+        const requestBody = {
+          "receipt-data": purchaseToken,
+          password: process.env.APPLE_SECRET_KEY, // App-specific shared secret (from App Store Connect)
+          "exclude-old-transactions": true,
+        };
+
+        const response = await axios.post(appleURL, requestBody, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        console.log(response);
+
+        const { status, receipt, latest_receipt_info } = response.data;
+
+        if (response.status === 200) {
+          res = {
+            status: 200,
+            res: {
+              code: CR.success,
+              message: "Apple Verification Successful",
+              data: response.data,
+            },
+          };
+        } else {
+          res = {
+            status: 404,
+            res: {
+              code: CR.notFound,
+              message: "Apple Verification Failed",
+            },
+          };
+        }
+      }
 
       console.log("Verification Result:", res.data);
 
-      return {
-        status: 200,
-        res: {
-          code: CR.success,
-          message: "Query Successful",
-          data: res.data,
-        },
-      };
+      return res;
     } catch (error) {
       throw new Error(`Verification failed: ${error.message}`);
     }
@@ -97,7 +226,7 @@ class SubscriptionService {
       const { subscriptionId, purchaseToken, notificationType } =
         subscriptionNotification;
 
-      console.log(subscriptionNotification);
+      // console.log(subscriptionNotification);
 
       // 1. Verify the notification with Google Play API
       const authClient = await auth.getClient();

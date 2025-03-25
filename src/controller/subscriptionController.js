@@ -87,7 +87,7 @@ class SubscriptionController {
   }
 
   async verifyPurchase(req, res) {
-    const { productId, purchaseToken } = req.body;
+    const { productId, purchaseToken, isAndroid } = req.body;
 
     try {
       if (productId == null || productId === "") {
@@ -104,9 +104,16 @@ class SubscriptionController {
         });
       }
 
+      if (isAndroid == null) {
+        return res.status(400).json({
+          code: CR.badRequest,
+          message: "Platform type is required",
+        });
+      }
+
       console.log(productId, purchaseToken);
 
-      const cal = await this.oServices.verifyPurchase(productId, purchaseToken);
+      const cal = await this.oServices.verifyPurchase(productId, purchaseToken, isAndroid);
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
@@ -144,25 +151,12 @@ class SubscriptionController {
   }
 
   async googleRTDN(req, res) {
-    const message = req.body.message
-    
+    const message = req.body.message;
 
-    
     try {
-      const subscriptionNotification = JSON.parse(Buffer.from(message.data, "base64").toString("utf-8"));
-      // if (productId == null || productId === "") {
-      //   return res.status(400).json({
-      //     code: CR.badRequest,
-      //     message: "Product Id is required",
-      //   });
-      // }
-
-      // if (purchaseToken == null || purchaseToken === "") {
-      //   return res.status(400).json({
-      //     code: CR.badRequest,
-      //     message: "Purchase Token is required",
-      //   });
-      // }
+      const subscriptionNotification = JSON.parse(
+        Buffer.from(message.data, "base64").toString("utf-8")
+      );
 
       const cal = await this.oServices.googleRTDN(subscriptionNotification);
       res.status(cal.status).json(cal.res);
