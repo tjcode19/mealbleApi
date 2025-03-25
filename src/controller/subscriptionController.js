@@ -111,9 +111,11 @@ class SubscriptionController {
         });
       }
 
-      console.log(productId, purchaseToken);
-
-      const cal = await this.oServices.verifyPurchase(productId, purchaseToken, isAndroid);
+      const cal = await this.oServices.verifyPurchase(
+        productId,
+        purchaseToken,
+        isAndroid
+      );
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
@@ -159,6 +161,17 @@ class SubscriptionController {
       );
 
       const cal = await this.oServices.googleRTDN(subscriptionNotification);
+      res.status(cal.status).json(cal.res);
+    } catch (error) {
+      res.status(500).json({ code: CR.serverError, message: error.message });
+    }
+  }
+
+  async appleRTDN(req, res) {
+    const message = req.body;
+
+    try {
+      const cal = await this.oServices.appleRTDN(message);
       res.status(cal.status).json(cal.res);
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });

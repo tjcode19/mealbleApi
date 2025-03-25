@@ -10,6 +10,7 @@ router
   .route("/verify-purchase")
   .post(controller.verifyPurchase.bind(controller));
 router.route("/google-rtdn").post(controller.googleRTDN.bind(controller));
+router.route("/apple-rtdn").post(controller.appleRTDN.bind(controller));
 router
   .route("/acknowledge-purchase")
   .post(controller.acknowledgePurchase.bind(controller));

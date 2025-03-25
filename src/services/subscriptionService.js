@@ -38,71 +38,6 @@ class SubscriptionService {
 
   async buySub() {}
 
-  // Verify the JWT signature and decode the payload
-  async verifyAppleNotification(jwtPayload) {
-    try {
-      // Extract the JWT header to get the key ID (kid)
-      const header = JSON.parse(
-        Buffer.from(jwtPayload.signedPayload.split(".")[0], "base64").toString()
-      );
-
-      // Get the public key from Apple's JWKS endpoint
-      const key = await appleJwksClient.getSigningKey(header.kid);
-      const publicKey = key.getPublicKey();
-
-      // Verify the JWT signature and decode the payload
-      const decoded = verify(jwtPayload.signedPayload, publicKey, {
-        algorithms: ["RS256"],
-      });
-
-      // Validate the payload
-      if (
-        decoded.iss !== "appstoreconnect-v1" ||
-        decoded.aud !== "com.bolxtine.mealbleapp"
-      ) {
-        throw new Error("Invalid issuer or audience");
-      }
-
-      return decoded;
-    } catch (error) {
-      throw new Error(
-        `Apple notification verification failed: ${error.message}`
-      );
-    }
-  }
-
-  async handleAppleNotification(decoded) {
-    const notificationType = decoded.notificationType;
-    const transactionInfo = decoded.data.signedTransactionInfo;
-
-    // Handle different notification types
-    switch (notificationType) {
-      case "DID_RENEW":
-        // Update subscription expiry date
-        await updateSubscription(transactionInfo);
-        break;
-      case "DID_FAIL_TO_RENEW":
-        // Handle payment failure
-        break;
-      default:
-        console.log("Unhandled notification type:", notificationType);
-    }
-  }
-
-  // async verifyPurchase(productId, purchaseToken) {
-  //   try {
-  //     const payload = req.body;
-  //     // Verify JWT signature using Apple's public key
-  //     const decoded = await verifyAppleNotification(payload);
-
-  //     // Handle notification type (e.g., DID_RENEW, DID_FAIL)
-  //     await handleAppleNotification(decoded);
-  //     res.status(200).end();
-  //   } catch (error) {
-  //     res.status(500).send('Apple RTDN failed');
-  //   }
-  // }
-
   // Verify a subscription purchase
   async verifyPurchase(productId, purchaseToken, isAndroid = true) {
     const androidPublisher = google.androidpublisher("v3");
@@ -152,8 +87,6 @@ class SubscriptionService {
           headers: { "Content-Type": "application/json" },
         });
 
-        console.log(response);
-
         const { status, receipt, latest_receipt_info } = response.data;
 
         if (response.status === 200) {
@@ -162,7 +95,7 @@ class SubscriptionService {
             res: {
               code: CR.success,
               message: "Apple Verification Successful",
-              data: response.data,
+              data: { status, receipt, latest_receipt_info },
             },
           };
         } else {
@@ -176,11 +109,19 @@ class SubscriptionService {
         }
       }
 
-      console.log("Verification Result:", res.data);
-
       return res;
     } catch (error) {
-      throw new Error(`Verification failed: ${error.message}`);
+      // throw new Error(`Verification failed: ${error.message}`);
+
+      console.log(`Verification failed: ${error.message}`);
+
+      return (res = {
+        status: 500,
+        res: {
+          code: CR.notFound,
+          message: "Apple Verification Failed",
+        },
+      });
     }
   }
 
@@ -217,6 +158,99 @@ class SubscriptionService {
           message: `Acknowledgement Failed: ${error.message}`,
         },
       };
+    }
+  }
+
+  // Verify the JWT signature and decode the payload
+  async verifyAppleJWT(jwtPayload) {
+    try {
+      // Extract the JWT header to get the key ID (kid)
+      const header = JSON.parse(
+        Buffer.from(jwtPayload.signedPayload.split(".")[0], "base64").toString()
+      );
+
+      // Get the public key from Apple's JWKS endpoint
+      const key = await appleJwksClient.getSigningKey(header.kid);
+      const publicKey = key.getPublicKey();
+
+      // 3. Verify the JWT
+      const decoded = verify(signedPayload, publicKey, {
+        algorithms: ["RS256"],
+        issuer: "appstoreconnect-v1", // Validate the issuer
+        audience: "com.bolxtine.mealbleapp", // e.g., 'com.yourapp.ios'
+      });
+
+      return decoded;
+    } catch (error) {
+      throw new Error(
+        `Apple notification verification failed: ${error.message}`
+      );
+    }
+  }
+
+  async handleAppleNotification(decoded) {
+    const notificationType = decoded.notificationType;
+    const transactionInfo = decoded.data.signedTransactionInfo;
+
+    // Handle different notification types
+    switch (notificationType) {
+      case "DID_RENEW":
+        // Update subscription expiry date
+        await updateSubscription(transactionInfo);
+        break;
+      case "DID_FAIL_TO_RENEW":
+        // Handle payment failure
+        break;
+      default:
+        console.log("Unhandled notification type:", notificationType);
+    }
+  }
+
+  async appleRTDN(payload) {
+    try {
+      const decoded = await this.verifyAppleJWT(payload);
+
+      const notificationType = decoded.notificationType;
+      const transactionInfo = decoded.data.signedTransactionInfo;
+
+
+      console.log(transactionInfo);
+
+
+      // 3. Find the user in your database
+      const table = await this.timetableRepo.getByQuery({
+        purchaseToken: purchaseToken,
+        active: true,
+      });
+
+      const tTable = table[0];
+
+      if (!tTable) {
+        return {
+          status: 500,
+          res: {
+            code: CR.notFound,
+            message: "Timetable not Found",
+          },
+        };
+      }
+
+      // 4. Update the user's subscription
+      const res = await this.updateSub(
+        notificationType,
+        purchaseToken,
+        tTable._id,
+        tTable.owner, // Corrected: Use owner directly
+        tTable.sub._id, // Corrected: Use _id instead of id
+        tTable.subData.period, // Corrected: Ensure period is correct
+        tTable.subData.shuffle, // Corrected: Shuffle is inside subData
+        tTable.subData.regenerate // Corrected: Regenerate is inside subData
+      );
+
+      return res;
+    } catch (error) {
+      console.error("RTDN error:", error);
+      res.status(500).send("RTDN handling failed");
     }
   }
 
@@ -295,7 +329,8 @@ class SubscriptionService {
   ) {
     switch (notificationType) {
       case 1: // SUBSCRIPTION_RECOVERED
-      case 2: {
+      case 2:
+      case "DID_RENEW": {
         const a = await this.timetableRepo.updateData(tId, { active: false });
 
         if (a != null) {
