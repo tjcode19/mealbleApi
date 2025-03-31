@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apple/app-store-server-library": "^1.5.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.0",
     "cloudinary": "^1.37.3",
@@ -24,6 +25,7 @@
     "googleapis": "^122.0.0",
     "inline-css": "^4.0.2",
     "jsonwebtoken": "^9.0.2",
+    "jwks-ec": "^1.0.3",
     "jwks-rsa": "^3.2.0",
     "mailgun.js": "^8.2.1",
     "mongodb": "^5.5.0",

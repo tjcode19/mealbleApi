@@ -1,19 +1,29 @@
 const MealRepository = require("../repositories/mealRepo");
+const NotificationRepository = require("../repositories/notificationRepo");
 const TimetableRepository = require("../repositories/timetableRepo");
 const UserRepository = require("../repositories/userRepo");
-const Scheduler = require("../services/schedulerService")
+const Scheduler = require("../services/schedulerService");
 const CR = require("../utils/customResponses");
+const NotificationService = require("./notificationService");
 
 class TimetableService {
   constructor() {
     this.repo = new TimetableRepository();
     this.mRepo = new MealRepository();
     this.uRepo = new UserRepository();
-    this.scheduler = new Scheduler()
+    this.notiService = new NotificationService();
+    this.scheduler = new Scheduler();
     this.lastAssignedDays;
   }
 
-  async createData(userId, subId, duration, shuffle, regenerate, purchaseToken) {
+  async createData(
+    userId,
+    subId,
+    duration,
+    shuffle,
+    regenerate,
+    purchaseToken
+  ) {
     try {
       const startDate = new Date(); // Set your desired start date here
       const endDate = new Date(startDate);
@@ -49,7 +59,7 @@ class TimetableService {
         subData: { period: dur, shuffle, regenerate },
         sub: subId, // The end date of the timetable
         timetable: timetable, // The generated timetable array
-        purchaseToken:purchaseToken
+        purchaseToken: purchaseToken,
       };
 
       const cal = await this.repo.createData(timetableData);
@@ -58,6 +68,19 @@ class TimetableService {
         const freePlanId = "6482da425efe572f0274178a";
         if (subId === freePlanId) {
           this.uRepo.updateUser(userId, { usedFree: true });
+        }
+
+        const user = await this.uRepo.getUserById(userId);
+
+        if (user) {
+          await this.notiService.createMessage({
+            name: user.firstName,
+            message: "Your meal table has been generated. ",
+            title: "Meal table generated",
+            owner: userId,
+            category: "Message",
+            date: new Date(),
+          });
         }
 
         return {

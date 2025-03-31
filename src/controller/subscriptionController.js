@@ -1,5 +1,6 @@
 const SubscriptionService = require("../services/subscriptionService");
 const CR = require("../utils/customResponses");
+const jwt = require("jsonwebtoken");
 
 class SubscriptionController {
   constructor() {
@@ -155,24 +156,44 @@ class SubscriptionController {
   async googleRTDN(req, res) {
     const message = req.body.message;
 
+
     try {
       const subscriptionNotification = JSON.parse(
         Buffer.from(message.data, "base64").toString("utf-8")
       );
 
       const cal = await this.oServices.googleRTDN(subscriptionNotification);
-      res.status(cal.status).json(cal.res);
+
+      console.log("Kini gan:", cal);
+      if (cal.status === 200) res.status(200).send("OK");
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
     }
   }
 
+  async decodeJWT(jwtToken) {
+    try {
+      const decoded = jwt.decode(jwtToken, { complete: true });
+      console.log("Decoded Apple RTDN JWT:", decoded);
+      return decoded;
+    } catch (error) {
+      console.error("Failed to decode JWT:", error);
+      return null;
+    }
+  }
+
   async appleRTDN(req, res) {
     const message = req.body;
+    if (message === null) {
+      return res.status(400).json({
+        code: CR.badRequest,
+        message: "Apple RTDN data is required",
+      });
+    }
 
     try {
       const cal = await this.oServices.appleRTDN(message);
-      res.status(cal.status).json(cal.res);
+      if (cal.status === 200) res.status(200).send("OK");
     } catch (error) {
       res.status(500).json({ code: CR.serverError, message: error.message });
     }

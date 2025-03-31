@@ -7,10 +7,8 @@ class NotificationController {
   }
 
   async createMessage(req, res) {
-
     const { title, message, owner, category } = req.body;
     try {
-      
       const curs = await this.oServices.createMessage({
         title,
         message,
@@ -45,8 +43,8 @@ class NotificationController {
     try {
       const curs = await this.oServices.getMessageByQuery({
         $or: [{ owner: userId }, { owner: "All" }],
-        owner: {
-          $gte: currentDate,
+        category: {
+          $ne: "Tips",
         },
       });
       res.status(curs.status).json(curs.res);
@@ -126,7 +124,7 @@ class NotificationController {
         data.topic,
         data.title,
         data.body,
-        { name: data.name }
+        { name: data.name, title: data.title, message: data.body }
       );
       res.status(cal.status).json(cal.res);
     } catch (error) {

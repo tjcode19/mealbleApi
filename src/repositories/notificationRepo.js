@@ -15,7 +15,7 @@ class NotificationRepository {
 
   async getByQuery(q) {
     try {
-      return await Notification.find(q);
+      return await Notification.find(q).sort({ _id: -1 });
     } catch (error) {
       console.log(error);
     }

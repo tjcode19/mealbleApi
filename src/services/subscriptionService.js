@@ -5,9 +5,12 @@ const UserRepository = require("../repositories/userRepo");
 const CR = require("../utils/customResponses");
 const { google } = require("googleapis");
 const path = require("path");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const { JwtHeader, verify } = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
 const axios = require("axios");
+const fetch = require("node-fetch");
 
 // Initialize auth with the JSON key file
 const auth = new google.auth.GoogleAuth({
@@ -18,9 +21,12 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/androidpublisher"],
 });
 // Create a JWKS client to fetch Apple's public keys
+// Initialize JWKS client for Apple
 const appleJwksClient = jwksClient({
-  jwksUri: "https://appleid.apple.com/auth/keys", // Apple's public keys URL
+  jwksUri: "https://appleid.apple.com/auth/keys",
   cache: true,
+  rateLimit: true,
+  jwksRequestsPerMinute: 10,
 });
 
 const APPLE_PRODUCTION_URL = "https://buy.itunes.apple.com/verifyReceipt";
@@ -39,7 +45,7 @@ class SubscriptionService {
   async buySub() {}
 
   // Verify a subscription purchase
-  async verifyPurchase(productId, purchaseToken, isAndroid = true) {
+  async verifyPurchase(productId, purchaseToken, isAndroid) {
     const androidPublisher = google.androidpublisher("v3");
     const authClient = await auth.getClient();
     const appleURL =
@@ -47,7 +53,7 @@ class SubscriptionService {
         ? APPLE_PRODUCTION_URL
         : APPLE_SANDBOX_URL;
 
-    var res;
+    let res;
 
     try {
       if (isAndroid) {
@@ -58,6 +64,8 @@ class SubscriptionService {
           token: purchaseToken,
         });
 
+        console.log("Latest Trans Android:", resBody);
+
         if (resBody.status === 200) {
           res = {
             status: 200,
@@ -65,6 +73,11 @@ class SubscriptionService {
               code: CR.success,
               message: "Google Verification Successful",
               data: resBody.data,
+              data: {
+                productId: productId,
+                purchaseToken: purchaseToken,
+                acknowledgementState: 0,
+              },
             },
           };
         } else {
@@ -89,13 +102,19 @@ class SubscriptionService {
 
         const { status, receipt, latest_receipt_info } = response.data;
 
+        console.log("Latest Trans Apple:", latest_receipt_info[0]);
+
         if (response.status === 200) {
           res = {
             status: 200,
             res: {
               code: CR.success,
               message: "Apple Verification Successful",
-              data: { status, receipt, latest_receipt_info },
+              data: {
+                productId: latest_receipt_info[0].product_id,
+                purchaseToken: latest_receipt_info[0].original_transaction_id,
+                acknowledgementState: 0,
+              },
             },
           };
         } else {
@@ -161,9 +180,9 @@ class SubscriptionService {
     }
   }
 
-  async decodeJwtHeader(token) {
-    const [headerEncoded] = token.split('.');
-    const header = Buffer.from(headerEncoded, 'base64').toString();
+  decodeJwtHeader(token) {
+    const [headerEncoded] = token.split(".");
+    const header = Buffer.from(headerEncoded, "base64").toString();
     return JSON.parse(header);
   }
 
@@ -171,17 +190,24 @@ class SubscriptionService {
   async verifyAppleJWT(jwtPayload) {
     try {
       // Extract the JWT header to get the key ID (kid)
-      const header = this.decodeJwtHeader(jwtPayload.signedPayload)
 
-      // Get the public key from Apple's JWKS endpoint
-      const key = await appleJwksClient.getSigningKey(header.kid);
-      const publicKey = key.getPublicKey();
+      const header = this.decodeJwtHeader(jwtPayload);
+      // Get the first certificate from x5c
+      const certBase64 = header.x5c[0];
+      const certDer = Buffer.from(certBase64, "base64");
+
+      // Parse the certificate
+      const cert = new crypto.X509Certificate(certDer);
+
+      // Export the public key in PEM format
+      const publicKey = cert.publicKey.export({
+        type: "spki",
+        format: "pem",
+      });
 
       // 3. Verify the JWT
-      const decoded = verify(signedPayload, publicKey, {
-        algorithms: ["RS256"],
-        issuer: "appstoreconnect-v1", // Validate the issuer
-        audience: "com.bolxtine.mealbleapp", // e.g., 'com.yourapp.ios'
+      const decoded = verify(jwtPayload, publicKey, {
+        algorithms: ["ES256"],
       });
 
       return decoded;
@@ -192,67 +218,26 @@ class SubscriptionService {
     }
   }
 
-  async handleAppleNotification(decoded) {
-    const notificationType = decoded.notificationType;
-    const transactionInfo = decoded.data.signedTransactionInfo;
-
-    // Handle different notification types
-    switch (notificationType) {
-      case "DID_RENEW":
-        // Update subscription expiry date
-        await updateSubscription(transactionInfo);
-        break;
-      case "DID_FAIL_TO_RENEW":
-        // Handle payment failure
-        break;
-      default:
-        console.log("Unhandled notification type:", notificationType);
-    }
-  }
-
   async appleRTDN(payload) {
-    console.log("Apple RTDN hit");
     try {
-      const decoded = await this.verifyAppleJWT(payload);
+      const decoded = await this.verifyAppleJWT(payload.signedPayload);
 
       const notificationType = decoded.notificationType;
-      const transactionInfo = decoded.data.signedTransactionInfo;
-
-
-      console.log(transactionInfo);
-
-
-      // 3. Find the user in your database
-      const table = await this.timetableRepo.getByQuery({
-        purchaseToken: purchaseToken,
-        active: true,
-      });
-
-      const tTable = table[0];
-
-      if (!tTable) {
-        return {
-          status: 500,
-          res: {
-            code: CR.notFound,
-            message: "Timetable not Found",
-          },
-        };
-      }
-
-      // 4. Update the user's subscription
-      const res = await this.updateSub(
-        notificationType,
-        purchaseToken,
-        tTable._id,
-        tTable.owner, // Corrected: Use owner directly
-        tTable.sub._id, // Corrected: Use _id instead of id
-        tTable.subData.period, // Corrected: Ensure period is correct
-        tTable.subData.shuffle, // Corrected: Shuffle is inside subData
-        tTable.subData.regenerate // Corrected: Regenerate is inside subData
+      const transactionInfo = await this.verifyAppleJWT(
+        decoded.data.signedTransactionInfo
       );
 
-      return res;
+      console.log("DecodedApple", transactionInfo);
+
+      const purchaseToken = transactionInfo.originalTransactionId;
+
+      // 4. Update the user's subscription
+      const res = await this.updateSub(notificationType, purchaseToken);
+
+      return {
+        status: 200,
+        res: res,
+      };
     } catch (error) {
       console.error("RTDN error:", error);
       res.status(500).send("RTDN handling failed");
@@ -265,8 +250,6 @@ class SubscriptionService {
       const { subscriptionId, purchaseToken, notificationType } =
         subscriptionNotification;
 
-      // console.log(subscriptionNotification);
-
       // 1. Verify the notification with Google Play API
       const authClient = await auth.getClient();
       const androidPublisher = google.androidpublisher("v3");
@@ -277,43 +260,14 @@ class SubscriptionService {
         token: purchaseToken,
       });
 
+
       if (subscription.status == 200) {
-        this.acknowledgePurchase(subscriptionId, purchaseToken);
-      }
-
-      // 2. Extract subscription details
-      const expiryTime = new Date(parseInt(subscription.data.expiryTimeMillis));
-      const linkedPurchaseToken = subscription.data.linkedPurchaseToken;
-
-      // 3. Find the user in your database
-      const table = await this.timetableRepo.getByQuery({
-        purchaseToken: purchaseToken,
-        active: true,
-      });
-
-      const tTable = table[0];
-
-      if (!tTable) {
-        return {
-          status: 500,
-          res: {
-            code: CR.notFound,
-            message: "Timetable not Found",
-          },
-        };
+        // res.status(200).send('OK');
+        await this.acknowledgePurchase(subscriptionId, purchaseToken);
       }
 
       // 4. Update the user's subscription
-      const res = await this.updateSub(
-        notificationType,
-        purchaseToken,
-        tTable._id,
-        tTable.owner, // Corrected: Use owner directly
-        tTable.sub._id, // Corrected: Use _id instead of id
-        tTable.subData.period, // Corrected: Ensure period is correct
-        tTable.subData.shuffle, // Corrected: Shuffle is inside subData
-        tTable.subData.regenerate // Corrected: Regenerate is inside subData
-      );
+      const res = await this.updateSub(notificationType, purchaseToken);
 
       return res;
     } catch (error) {
@@ -322,33 +276,43 @@ class SubscriptionService {
     }
   }
 
-  async updateSub(
-    notificationType,
-    purchaseToken,
-    tId,
-    userId,
-    subId,
-    dur,
-    shuffle,
-    regenerate
-  ) {
+  async updateSub(notificationType, purchaseToken) {
     switch (notificationType) {
       case 1: // SUBSCRIPTION_RECOVERED
       case 2:
       case "DID_RENEW": {
-        const a = await this.timetableRepo.updateData(tId, { active: false });
+        const table = await this.timetableRepo.getByQuery({
+          purchaseToken: purchaseToken,
+          active: true,
+        });
+
+        const tTable = table[0];
+
+        if (!tTable) {
+          return {
+            status: 500,
+            res: {
+              code: CR.notFound,
+              message: "Timetable not Found",
+            },
+          };
+        }
+        const a = await this.timetableRepo.updateData(tTable._id, {
+          active: false,
+        });
 
         if (a != null) {
         }
 
         const cal = await this.timetableService.createData(
-          userId,
-          subId,
-          dur,
-          shuffle,
-          regenerate,
+          tTable.owner,
+          tTable.sub._id,
+          tTable.subData.period,
+          tTable.subData.shuffle,
+          tTable.subData.regenerate,
           purchaseToken
         );
+
         return cal;
       }
 
@@ -357,6 +321,7 @@ class SubscriptionService {
         break;
       case 4: // SUBSCRIPTION_PURCHASED
         // New subscription
+        console.log("subscription cancelled now");
         break;
       case 5: // SUBSCRIPTION_ON_HOLD (e.g., payment failed)
         // Handle grace period

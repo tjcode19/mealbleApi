@@ -25,6 +25,9 @@ const UserSchema = mongoose.Schema(
     gender: {
       type: String,
     },
+    deviceId: {
+      type: String,
+    },
     country: {
       type: String,
     },
